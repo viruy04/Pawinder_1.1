@@ -2,4 +2,29 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Фон экрана -->
+    <color name="pw_background">#F5EFE3</color>
+
+    <!-- Шапка (арка) -->
+    <color name="pw_header_brown">#7A5230</color>
+
+    <!-- Кнопки -->
+    <color name="pw_button_brown">#8A5A2E</color>
+    <color name="pw_button_sage">#7FA089</color>
+    <color name="pw_button_tan">#EAD9A5</color>
+
+    <!-- Поля ввода -->
+    <color name="pw_input_fill">#EFD9A0</color>
+    <color name="pw_input_text">#3B2A1A</color>
+    <color name="pw_input_hint">#6B5B3E</color>
+
+    <!-- Чипы-лейблы -->
+    <color name="pw_label_chip">#F1DFCB</color>
+    <color name="pw_label_chip_orange">#EFC9A0</color>
+
+    <!-- Текст -->
+    <color name="pw_text_dark">#2B1D10</color>
+    <color name="pw_text_on_header">#FFFFFF</color>
+    <color name="pw_text_on_button">#FFFFFF</color>
+    <color name="pw_text_on_tan">#3B2A1A</color>
 </resources>
