@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ReglamentReader.showReglament(this);
+
         bottomNavigation = findViewById(R.id.bottom_navigation);
 
         // При запуске открываем Ленту
