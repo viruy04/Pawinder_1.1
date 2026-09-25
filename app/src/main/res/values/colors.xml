@@ -27,4 +27,9 @@
     <color name="pw_text_on_header">#FFFFFF</color>
     <color name="pw_text_on_button">#FFFFFF</color>
     <color name="pw_text_on_tan">#3B2A1A</color>
+
+    <!-- Навигация -->
+    <color name="pw_nav_background">#F3E8DC</color>
+    <color name="pw_nav_selected">#8B5E3C</color>
+    <color name="pw_nav_unselected">#9E9085</color>
 </resources>
