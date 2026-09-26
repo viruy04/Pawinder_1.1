@@ -1,14 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:fillViewport="true"
+    android:scrollbars="none">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Избранное"
-        android:textSize="24sp" />
+        android:paddingBottom="30dp">
 
-</FrameLayout>
+        <!-- Аватар -->
+        <FrameLayout
+            android:id="@+id/avatarContainer"
+            android:layout_width="104dp"
+            android:layout_height="104dp"
+            android:layout_marginStart="56dp"
+            android:layout_marginTop="83dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivAvatar"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:padding="2dp"
+                android:contentDescription="Изменить аватар"
+                android:scaleType="centerCrop"
+                android:src="@drawable/image_def"
+                android:clickable="true"
+                android:focusable="true"
+                app:shapeAppearanceOverlay="@style/CircleImage"
+                app:strokeColor="@color/pw_avatar"
+                app:strokeWidth="2dp" />
+
+            <!-- Кнопка изменения аватарки -->
+            <ImageView
+                android:id="@+id/ivEditAvatar"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="1dp"
+                android:padding="6dp"
+                android:background="@drawable/bg_edit_avatar"
+                android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="Изменить аватар"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </FrameLayout>
+
+        <!-- Никнейм -->
+        <TextView
+            android:id="@+id/tvNickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="45dp"
+            android:text="НИКНЕЙМ"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@id/avatarContainer"
+            app:layout_constraintStart_toEndOf="@id/avatarContainer"
+            app:layout_constraintTop_toTopOf="@id/avatarContainer" />
+
+        <!-- Фамилия -->
+        <TextView
+            android:id="@+id/tvSurname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="55dp"
+            android:text="Фамилия"
+            android:textColor="@color/pw_text_dark"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/avatarContainer" />
+
+        <!-- Имя -->
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="5dp"
+            android:text="Имя"
+            android:textColor="@color/pw_text_dark"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSurname" />
+
+        <!-- Почта -->
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="5dp"
+            android:text="Почта"
+            android:textColor="@color/pw_text_dark"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvName" />
+
+        <!-- Дата рождения -->
+        <TextView
+            android:id="@+id/tvBirthDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="5dp"
+            android:text="Дата рождения"
+            android:textColor="@color/pw_text_dark"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvEmail" />
+
+        <!-- Страна -->
+        <TextView
+            android:id="@+id/tvCountry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="135dp"
+            android:layout_marginTop="55dp"
+            android:text="Страна,"
+            android:textColor="@color/pw_text_dark"
+            android:textSize="18sp"
+            app:layout_constraintStart_toEndOf="@id/tvEmail"
+            app:layout_constraintTop_toBottomOf="@id/avatarContainer" />
+
+        <!-- Город -->
+        <TextView
+            android:id="@+id/tvCity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="135dp"
+            android:layout_marginTop="2dp"
+            android:text="Город"
+            android:textColor="@color/pw_text_dark"
+            android:textSize="18sp"
+            app:layout_constraintStart_toEndOf="@id/tvEmail"
+            app:layout_constraintTop_toBottomOf="@id/tvCountry" />
+
+        <!-- Избранное -->
+        <TextView
+            android:id="@+id/tvFavoritesTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="42dp"
+            android:text="▮ Избранное"
+            android:textColor="@color/pw_text_dark"
+            android:textSize="23sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvBirthDate" />
+
+        <!-- Список избранных -->
+        <LinearLayout
+            android:id="@+id/favoritesList"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="38dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvFavoritesTitle">
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
