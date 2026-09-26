@@ -3,7 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <!-- Фон экрана -->
-    <color name="pw_background">#F5EFE3</color>
+    <color name="pw_background">#C29D7D</color>
 
     <!-- Шапка (арка) -->
     <color name="pw_header_brown">#7A5230</color>
