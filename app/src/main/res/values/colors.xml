@@ -32,4 +32,7 @@
     <color name="pw_nav_background">#F3E8DC</color>
     <color name="pw_nav_selected">#8B5E3C</color>
     <color name="pw_nav_unselected">#9E9085</color>
+
+    <!-- Рамка аватара -->
+    <color name="pw_avatar">#84572F</color>
 </resources>
