@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -16,6 +19,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        val localProperties = Properties()
+        localProperties.load(FileInputStream(rootProject.file("local.properties")))
+
+        buildConfigField("String", "CAT_API_KEY", "\"${localProperties.getProperty("CAT_API_KEY")}\"")
+        buildConfigField("String", "DOG_API_KEY", "\"${localProperties.getProperty("DOG_API_KEY")}\"")
+    }
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
