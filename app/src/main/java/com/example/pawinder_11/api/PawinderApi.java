@@ -1,21 +1,16 @@
 package com.example.pawinder_11.api;
 
-import retrofit2.http.Body;
-import retrofit2.http.POST;
+import com.example.pawinder_11.model.Pet;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
 
 public interface PawinderApi {
-    @POST("api/users/login")
-    Call<User> login(@Body LoginRequest request);
+
+    @GET("api/pets")
+    Call<List<Pet>> getAllPets();
 
     @GET("api/pets/type/{typeId}")
     Call<List<Pet>> getPetsByType(@Path("typeId") int typeId);
-
-    @POST("api/swipes")
-    Call<Swipe> recordSwipe(@Body SwipeRequest request);
-
-    @POST("api/favorites")
-    Call<Favorite> addFavorite(@Body SwipeRequest request);
-
-    @GET("api/favorites/user/{userId}")
-    Call<List<Favorite>> getFavorites(@Path("userId") int userId);
 }
