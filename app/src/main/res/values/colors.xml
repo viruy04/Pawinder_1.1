@@ -3,7 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <!-- Фон экрана -->
-    <color name="pw_background">#F5EFE3</color>
+    <color name="pw_background">#C29D7D</color>
 
     <!-- Шапка (арка) -->
     <color name="pw_header_brown">#7A5230</color>
@@ -27,4 +27,12 @@
     <color name="pw_text_on_header">#FFFFFF</color>
     <color name="pw_text_on_button">#FFFFFF</color>
     <color name="pw_text_on_tan">#3B2A1A</color>
+
+    <!-- Навигация -->
+    <color name="pw_nav_background">#F3E8DC</color>
+    <color name="pw_nav_selected">#8B5E3C</color>
+    <color name="pw_nav_unselected">#9E9085</color>
+
+    <!-- Рамка аватара -->
+    <color name="pw_avatar">#84572F</color>
 </resources>
