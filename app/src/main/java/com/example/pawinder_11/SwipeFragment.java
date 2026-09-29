@@ -45,7 +45,7 @@ public class SwipeFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Pet>> call, Throwable t) {
-                Log.e("API_TEST", "Ошибка сети: " + t.getMessage());
+                Log.e("API_TEST", "Ошибка сети", t);
             }
         });
     }
