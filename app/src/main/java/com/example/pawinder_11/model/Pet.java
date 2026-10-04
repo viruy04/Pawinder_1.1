@@ -1,16 +1,41 @@
 package com.example.pawinder_11.model;
 
-public class Pet {
-    private int id_pet;
-    private String api_pet_id;
-    private String name;
-    private String description;
-    private String photo_url;
+import com.google.gson.annotations.SerializedName;
 
-    // геттеры
-    public int getId() { return id_pet; }
-    public String getApiPetId() { return api_pet_id; }
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public String getPhotoUrl() { return photo_url; }
+public class Pet {
+    @SerializedName(value = "id", alternate = {"id_pet"})
+    private int id;
+
+    @SerializedName(value = "apiPetId", alternate = {"api_pet_id"})
+    private String apiPetId;
+
+    @SerializedName("name")
+    private String name;
+
+    @SerializedName("description")
+    private String description;
+
+    @SerializedName(value = "photoUrl", alternate = {"photo_url"})
+    private String photoUrl;
+
+    // Геттеры
+    public int getId() {
+        return id;
+    }
+
+    public String getApiPetId() {
+        return apiPetId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
 }
