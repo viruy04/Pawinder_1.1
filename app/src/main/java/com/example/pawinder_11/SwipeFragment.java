@@ -35,7 +35,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SwipeFragment extends Fragment {
-
+    private static final int PAGE_SIZE = 5;
+    private static final int PREFETCH_LEFT = 2;
+    private int page = 0;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private boolean waitingForMore = false;
     private ProgressBar progressBar;
     private View contentContainer;
     private CardView petCardView;
@@ -83,41 +88,77 @@ public class SwipeFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         contentContainer.setVisibility(View.GONE);
 
-        loadPetsFromApi();
+        loadPets();
     }
 
-    private void loadPetsFromApi() {
-        ApiClient.getApi().getAllPets().enqueue(new Callback<List<Pet>>() {
+    private void loadPets() {
+        if (isLoading || isLastPage) return;
+        isLoading = true;
+
+        ApiClient.getApi().getPets(page, PAGE_SIZE).enqueue(new Callback<List<Pet>>() {
             @Override
             public void onResponse(Call<List<Pet>> call, Response<List<Pet>> response) {
+                isLoading = false;
+                if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
 
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    petList = response.body();
+                if (!response.isSuccessful() || response.body() == null) {
+                    handleLoadError();
+                    return;
+                }
+
+                List<Pet> newPets = response.body();
+                if (newPets.size() < PAGE_SIZE) isLastPage = true;
+
+                if (newPets.isEmpty()) {
+                    if (petList.isEmpty()) {
+                        Toast.makeText(getContext(), "Список питомцев пуст", Toast.LENGTH_SHORT).show();
+                    } else if (waitingForMore) {   // дошли до конца -> начинаем сначала
+                        waitingForMore = false;
+                        currentIndex = 0;
+                        displayPet(petList.get(0));
+                    }
+                    return;
+                }
+
+                page++;
+                boolean firstLoad = petList.isEmpty();
+                petList.addAll(newPets);
+                preloadImages(newPets);
+                contentContainer.setVisibility(View.VISIBLE);
+
+                if (firstLoad) {
                     currentIndex = 0;
-
-                    preloadAllPetImages();
-
-                    contentContainer.setVisibility(View.VISIBLE);
+                    displayPet(petList.get(0));
+                } else if (waitingForMore) {
+                    waitingForMore = false;
                     displayPet(petList.get(currentIndex));
-                } else {
-                    Toast.makeText(getContext(), "Список питомцев пуст", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Pet>> call, Throwable t) {
+                isLoading = false;
+                if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
                 Log.e("API_ERROR", "Ошибка сети", t);
-                Toast.makeText(getContext(), "Ошибка сети: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                handleLoadError();
             }
         });
     }
 
-    private void preloadAllPetImages() {
-        if (petList == null || getContext() == null) return;
+    private void handleLoadError() {
+        Toast.makeText(getContext(), "Не удалось загрузить питомцев", Toast.LENGTH_SHORT).show();
+        if (waitingForMore && !petList.isEmpty()) {
+            waitingForMore = false;
+            currentIndex = 0;
+            displayPet(petList.get(0));
+        }
+    }
 
-        for (Pet p : petList) {
+    private void preloadImages(List<Pet> pets) {
+        if (getContext() == null) return;
+        for (Pet p : pets) {
             String url = p.getPhotoUrl();
             if (url != null && !url.trim().isEmpty()) {
                 if (url.startsWith("/")) {
@@ -301,11 +342,24 @@ public class SwipeFragment extends Fragment {
     }
 
     private void showNextPet() {
-        if (petList == null || petList.isEmpty()) return;
+        if (petList.isEmpty()) return;
 
         currentIndex++;
+
         if (currentIndex >= petList.size()) {
-            currentIndex = 0;
+            if (isLastPage) {
+                currentIndex = 0;                 // всё просмотрено -> по кругу
+            } else {
+                waitingForMore = true;            // юзер долистал быстрее, чем пришли данные
+                progressBar.setVisibility(View.VISIBLE);
+                loadPets();
+                return;
+            }
+        }
+
+        // prefetch: осталось мало -> тихо подгружаем следующие 5
+        if (petList.size() - currentIndex <= PREFETCH_LEFT) {
+            loadPets();
         }
 
         displayPet(petList.get(currentIndex));
