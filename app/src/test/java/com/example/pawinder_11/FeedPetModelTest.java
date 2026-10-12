@@ -7,6 +7,11 @@ import static org.junit.Assert.*;
 
 public class FeedPetModelTest {
 
+    //Проверяет, что данные карточки питомца
+    // (имя, описание, ID и ссылка на фото),
+    // поступающие с сервера в формате JSON,
+    // корректно преобразуются (десериализуются)
+    // в объект Pet, используемый в ленте.
     @Test
     public void testPetCardParsing() {
         String json = "{\"id\":42, \"name\":\"Рекс\", \"description\":\"Энергичный щенок\", \"photoUrl\":\"/images/rex.jpg\"}";

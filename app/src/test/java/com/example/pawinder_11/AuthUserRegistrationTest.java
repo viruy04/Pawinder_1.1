@@ -7,6 +7,8 @@ import static org.junit.Assert.*;
 
 public class AuthUserRegistrationTest {
 
+    //Проверяет корректность обработки данных пользователя
+    // после успешной регистрации или получения ответа от сервера
     @Test
     public void testUserRegistrationParsing() {
         String json = "{\"id_user\":7, \"nickname\":\"new_pet_lover\", \"email\":\"lover@pawinder.com\"}";
