@@ -43,11 +43,9 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
         // Только имя, без описания
         holder.tvName.setText(pet.getName());
 
-        String photoUrl = pet.getPhotoUrl();
-        if (photoUrl != null && !photoUrl.trim().isEmpty()) {
-            if (photoUrl.startsWith("/")) {
-                photoUrl = "https://pawinderserver-production.up.railway.app" + photoUrl;
-            }
+        String photoUrl = FeedLogic.resolvePhotoUrl(pet.getPhotoUrl(),
+                "https://pawinderserver-production.up.railway.app");
+        if (photoUrl != null) {
 
             // 1. Фоновое изображение (TikTok-стиль: растянутое с centerCrop)
             Glide.with(context)

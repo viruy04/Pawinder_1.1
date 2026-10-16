@@ -3,6 +3,7 @@ import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
+    jacoco // плагин для покрытия
 }
 
 android {
@@ -28,6 +29,12 @@ android {
         release {
             optimization {
                 enable = false
+            }
+        }
+        // покрытие
+        buildTypes {
+            debug {
+                enableUnitTestCoverage = true
             }
         }
     }
