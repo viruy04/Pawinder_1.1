@@ -4,7 +4,9 @@
 
 **Pawinder** — Android-приложение для подбора животных из приютов.
 
-**Технологии:** Java, Android Studio, Spring Boot.
+**Команда:** - Казакова А. Ю. и Пономарёва А.С.
+
+**Технологии:** Java, Android Studio, Spring Boot, MySQL, TiDB Cloud, Render.
 
 ## 2. Пользователь
 
