@@ -4,12 +4,14 @@ name: Android CI
 on:
   push:
     branches:
+      - main
       - master
       - kazakova
       - ponomaryova
 
   pull_request:
     branches:
+      - main
       - master
 
 jobs:
@@ -27,7 +29,29 @@ jobs:
           java-version: '17'
 
       - name: Сборка проекта
-        run: chmod +x gradlew && ./gradlew assembleDebug
+        run: chmod +x gradlew && ./gradlew :app:assembleDebug
 
       - name: Запуск модульных тестов
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew :app:testDebugUnitTest
+
+      - name: Проверка отклонения некорректного URL
+        shell: bash
+        run: |
+          set +e
+          output=$(./gradlew "-Ppawinder.serverBaseUrl=ftp://bad/" :app:assembleDebug 2>&1)
+          status=$?
+          set -e
+
+          echo "$output"
+
+          if [ "$status" -eq 0 ]; then
+            echo "Ошибка: сборка прошла с некорректным URL"
+            exit 1
+          fi
+
+          if ! echo "$output" | grep -F "Invalid pawinder.serverBaseUrl"; then
+            echo "Ошибка: сборка завершилась не из-за проверки URL"
+            exit 1
+          fi
+
+          echo "Некорректный URL успешно отклонён"
