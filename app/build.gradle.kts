@@ -14,6 +14,11 @@ android {
 
     defaultConfig {
         applicationId = "com.example.pawinder_11"
+        buildConfigField(
+            "String",
+            "SERVER_BASE_URL",
+            "\"${providers.gradleProperty("pawinder.serverBaseUrl").orElse("https://pawinderserver-production.up.railway.app/").get()}\""
+        )
         minSdk = 24
         targetSdk = 37
         versionCode = 1

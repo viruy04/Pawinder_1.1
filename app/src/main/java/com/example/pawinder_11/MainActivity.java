@@ -1,6 +1,7 @@
 package com.example.pawinder_11;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("PawinderApp", "Запуск приложения");
+        Log.i("PawinderApp", "Server URL: " + BuildConfig.SERVER_BASE_URL);
         setContentView(R.layout.activity_main);
 
         ReglamentReader.showReglament(this);
