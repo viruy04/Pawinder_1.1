@@ -25,6 +25,7 @@ android {
         buildConfig = true
     }
 
+
     buildTypes {
         release {
             optimization {
@@ -32,12 +33,11 @@ android {
             }
         }
         // покрытие
-        buildTypes {
-            debug {
-                enableUnitTestCoverage = true
-            }
+        debug {
+            enableUnitTestCoverage = true
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
