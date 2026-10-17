@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.i("PawinderApp", "Запуск приложения");
         Log.i("PawinderApp", "Server URL: " + BuildConfig.SERVER_BASE_URL);
+        Log.i("PawinderApp", "App version: " + AppInfo.format());
         setContentView(R.layout.activity_main);
 
         ReglamentReader.showReglament(this);
