@@ -56,7 +56,8 @@ public class FeedFragment extends Fragment {
                 if (!isAdded()) return;
                 progressBarFeed.setVisibility(View.GONE);
 
-                if (FeedLogic.isUsableResponse(response.isSuccessful(), response.body())) {
+                if (FeedLogicProvider.getInstance().isUsableResponse(
+                        response.isSuccessful(), response.body())) {
                     petList.clear();
                     petList.addAll(response.body());
                     feedAdapter.notifyDataSetChanged();
@@ -70,7 +71,9 @@ public class FeedFragment extends Fragment {
                 if (!isAdded()) return;
                 progressBarFeed.setVisibility(View.GONE);
                 Log.e("FeedFragment", "Error loading feed", t);
-                Toast.makeText(getContext(), FeedLogic.networkErrorMessage(t), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),
+                        FeedLogicProvider.getInstance().networkErrorMessage(t),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }
