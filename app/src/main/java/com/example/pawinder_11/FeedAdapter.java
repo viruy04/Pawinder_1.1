@@ -43,7 +43,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
         // Только имя, без описания
         holder.tvName.setText(pet.getName());
 
-        String photoUrl = FeedLogic.resolvePhotoUrl(pet.getPhotoUrl(),
+        String photoUrl = FeedLogicProvider.getInstance().resolvePhotoUrl(
+                pet.getPhotoUrl(),
                 "https://pawinderserver-production.up.railway.app");
         if (photoUrl != null) {
 
