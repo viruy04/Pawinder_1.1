@@ -1,4 +1,7 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.utils;
+
+import com.example.pawinder_11.BuildConfig;
+
 public class AppInfo {
 
     public static String format() {

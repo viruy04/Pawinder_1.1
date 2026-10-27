@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.ui.swipe;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -24,6 +24,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.pawinder_11.R;
+import com.example.pawinder_11.utils.TranslationManager;
 import com.example.pawinder_11.api.ApiClient;
 import com.example.pawinder_11.model.Pet;
 

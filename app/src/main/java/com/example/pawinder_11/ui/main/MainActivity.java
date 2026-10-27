@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.ui.main;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +9,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 
+import com.example.pawinder_11.utils.AppInfo;
+import com.example.pawinder_11.BuildConfig;
+import com.example.pawinder_11.ui.favorites.FavoritesFragment;
+import com.example.pawinder_11.ui.feed.FeedFragment;
+import com.example.pawinder_11.utils.LanguageManager;
+import com.example.pawinder_11.R;
+import com.example.pawinder_11.utils.ReglamentReader;
+import com.example.pawinder_11.ui.swipe.SwipeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

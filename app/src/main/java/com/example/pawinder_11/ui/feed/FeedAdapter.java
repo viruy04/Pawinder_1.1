@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.ui.feed;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -15,6 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.pawinder_11.logic.feed.FeedLogicProvider;
+import com.example.pawinder_11.R;
+import com.example.pawinder_11.utils.TranslationManager;
 import com.example.pawinder_11.model.Pet;
 
 import java.util.List;

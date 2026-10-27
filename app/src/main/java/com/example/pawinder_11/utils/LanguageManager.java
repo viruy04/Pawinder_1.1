@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
