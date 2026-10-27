@@ -60,6 +60,13 @@ public class SwipeFragment extends Fragment {
         super(R.layout.fragment_swipe);
     }
 
+    // Обновление языка для текущей карточки без сброса позиции
+    public void refreshLanguage() {
+        if (petList != null && !petList.isEmpty() && currentIndex < petList.size()) {
+            displayPet(petList.get(currentIndex));
+        }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -150,7 +157,8 @@ public class SwipeFragment extends Fragment {
         };
 
         // 1. Перевод имени через DeepL
-        TranslationManager.translateText(pet.getName(), new TranslationManager.TranslationCallback() {
+        // 1. Перевод имени через DeepL (передаем requireContext())
+        TranslationManager.translateText(requireContext(), pet.getName(), new TranslationManager.TranslationCallback() {
             @Override
             public void onSuccess(String translatedText) {
                 tvPetName.setText(translatedText);
@@ -159,14 +167,14 @@ public class SwipeFragment extends Fragment {
             }
             @Override
             public void onError(Throwable t) {
-                tvPetName.setText(pet.getName()); // fallback на оригинал
+                tvPetName.setText(pet.getName());
                 nameDone[0] = true;
                 checkReady.run();
             }
         });
 
-        // 2. Перевод описания через DeepL
-        TranslationManager.translateText(pet.getDescription(), new TranslationManager.TranslationCallback() {
+        // 2. Перевод описания через DeepL (передаем requireContext())
+        TranslationManager.translateText(requireContext(), pet.getDescription(), new TranslationManager.TranslationCallback() {
             @Override
             public void onSuccess(String translatedText) {
                 tvPetDescription.setText(translatedText);
@@ -175,7 +183,7 @@ public class SwipeFragment extends Fragment {
             }
             @Override
             public void onError(Throwable t) {
-                tvPetDescription.setText(pet.getDescription()); // fallback на оригинал
+                tvPetDescription.setText(pet.getDescription());
                 descDone[0] = true;
                 checkReady.run();
             }

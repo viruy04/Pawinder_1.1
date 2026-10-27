@@ -51,13 +51,11 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
         holder.ivPhotoBg.setVisibility(View.INVISIBLE);
 
         // 2. Запускаем перевод через DeepL
-        TranslationManager.translateText(petName, new TranslationManager.TranslationCallback() {
+        TranslationManager.translateText(context, petName, new TranslationManager.TranslationCallback() {
             @Override
             public void onSuccess(String translatedText) {
                 if (petName.equals(holder.tvName.getTag())) {
                     holder.tvName.setText(translatedText);
-
-                    // Когда перевод готов — выключаем крутилку и показываем ВСЁ разом
                     holder.progressBarItem.setVisibility(View.GONE);
                     holder.tvName.setVisibility(View.VISIBLE);
                     holder.ivPhoto.setVisibility(View.VISIBLE);
@@ -68,7 +66,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
             public void onError(Throwable t) {
                 if (petName.equals(holder.tvName.getTag())) {
                     holder.tvName.setText(petName);
-
                     holder.progressBarItem.setVisibility(View.GONE);
                     holder.tvName.setVisibility(View.VISIBLE);
                     holder.ivPhoto.setVisibility(View.VISIBLE);
@@ -80,7 +77,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
         // 3. Glide загружает картинку в фоне (пока крутится прогресс-бар перевода)
         String photoUrl = FeedLogicProvider.getInstance().resolvePhotoUrl(
                 pet.getPhotoUrl(),
-                "https://pawinderserver-production.up.railway.app");
+                "https://pawinder-server.onrender.com/");
         if (photoUrl != null) {
             Glide.with(context)
                     .load(photoUrl)

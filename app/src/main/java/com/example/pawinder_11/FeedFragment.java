@@ -32,6 +32,13 @@ public class FeedFragment extends Fragment {
         super(R.layout.fragment_feed);
     }
 
+    // Обновление языка для текущей ленты без сброса скролла
+    public void refreshLanguage() {
+        if (feedAdapter != null) {
+            feedAdapter.notifyDataSetChanged();
+        }
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

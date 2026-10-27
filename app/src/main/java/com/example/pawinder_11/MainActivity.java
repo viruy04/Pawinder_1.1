@@ -2,9 +2,11 @@ package com.example.pawinder_11;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -30,6 +32,40 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigation = findViewById(R.id.bottom_navigation);
 
+        // Кнопка выбора языка в правом верхнем углу
+        TextView btnLanguage = findViewById(R.id.btnLanguage);
+        if (btnLanguage != null) {
+            // Инициализируем язык из SharedPreferences
+            String currentLang = LanguageManager.getLanguage(this);
+            btnLanguage.setText(currentLang.toUpperCase());
+
+            btnLanguage.setOnClickListener(v -> {
+                PopupMenu popup = new PopupMenu(this, v);
+                popup.getMenu().add("Русский (RU)");
+                popup.getMenu().add("English (EN)");
+
+                popup.setOnMenuItemClickListener(item -> {
+                    String selectedLang = item.getTitle().toString().contains("RU") ? "ru" : "en";
+
+                    // Сохраняем язык
+                    LanguageManager.setLanguage(this, selectedLang);
+                    btnLanguage.setText(selectedLang.toUpperCase());
+
+                    // Находим ТЕКУЩИЙ открытый экран
+                    Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+                    // Вызываем обновление текста прямо на нем, НЕ сбрасывая карточку
+                    if (currentFragment instanceof SwipeFragment) {
+                        ((SwipeFragment) currentFragment).refreshLanguage();
+                    } else if (currentFragment instanceof FeedFragment) {
+                        ((FeedFragment) currentFragment).refreshLanguage();
+                    }
+                    return true;
+                });
+
+                popup.show();
+            });
+        }
         // При запуске открываем Ленту
         openFragment(new FeedFragment());
         bottomNavigation.setSelectedItemId(R.id.nav_feed);
