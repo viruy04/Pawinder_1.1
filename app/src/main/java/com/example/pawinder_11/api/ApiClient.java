@@ -1,18 +1,17 @@
-
 package com.example.pawinder_11.api;
-
-import com.example.pawinder_11.BuildConfig;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
+    //нужно будет менять айпишник как я понимаю пока не возведем прилично, это мой домашний лол
+    private static final String BASE_URL = "https://pawinder-server.onrender.com/";
     private static Retrofit retrofit;
 
     public static PawinderApi getApi() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BuildConfig.SERVER_BASE_URL)
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
