@@ -14,12 +14,22 @@
         android:layout_height="match_parent"
         android:background="#000000">
 
+        <!-- Прогресс-бар загрузки/перевода карточки -->
+        <ProgressBar
+            android:id="@+id/progressBarItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="@android:color/white"
+            android:visibility="visible" />
+
         <!-- 1. Фоновое изображение (заполняет весь экран как в TikTok, создавая атмосферу) -->
         <ImageView
             android:id="@+id/ivFeedPhotoBg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
+
 
         <!-- Затемнение фонового изображения, чтобы оно не отвлекало -->
         <View

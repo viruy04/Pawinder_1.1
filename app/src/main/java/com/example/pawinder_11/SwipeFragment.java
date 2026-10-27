@@ -90,17 +90,16 @@ public class SwipeFragment extends Fragment {
         ApiClient.getApi().getAllPets().enqueue(new Callback<List<Pet>>() {
             @Override
             public void onResponse(Call<List<Pet>> call, Response<List<Pet>> response) {
-                progressBar.setVisibility(View.GONE);
+                // УБРАЛИ отсюда progressBar.setVisibility(View.GONE);
 
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     petList = response.body();
                     currentIndex = 0;
 
                     preloadAllPetImages();
-
-                    contentContainer.setVisibility(View.VISIBLE);
-                    displayPet(petList.get(currentIndex));
+                    displayPet(petList.get(currentIndex)); // Прогресс-бар выключится внутри этого метода после перевода
                 } else {
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "Список питомцев пуст", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -121,7 +120,7 @@ public class SwipeFragment extends Fragment {
             String url = p.getPhotoUrl();
             if (url != null && !url.trim().isEmpty()) {
                 if (url.startsWith("/")) {
-                    url = "https://pawinderserver-production.up.railway.app" + url;
+                    url = "https://pawinder-server.onrender.com/" + url;
                 }
                 Glide.with(requireContext())
                         .load(url)
@@ -133,15 +132,62 @@ public class SwipeFragment extends Fragment {
     }
 
     private void displayPet(Pet pet) {
-        tvPetName.setText(pet.getName());
-        tvPetDescription.setText(pet.getDescription());
+        // Держим прогресс-бар включенным, а карточку скрытой до завершения перевода
+        progressBar.setVisibility(View.VISIBLE);
+        contentContainer.setVisibility(View.INVISIBLE);
 
+        final boolean[] nameDone = {false};
+        final boolean[] descDone = {false};
+
+        Runnable checkReady = () -> {
+            if (nameDone[0] && descDone[0]) {
+                // Когда оба перевода готовы — прячем крутилку и показываем карточку
+                progressBar.setVisibility(View.GONE);
+                contentContainer.setVisibility(View.VISIBLE);
+                petCardView.setAlpha(0f);
+                petCardView.animate().alpha(1f).setDuration(150).start();
+            }
+        };
+
+        // 1. Перевод имени через DeepL
+        TranslationManager.translateText(pet.getName(), new TranslationManager.TranslationCallback() {
+            @Override
+            public void onSuccess(String translatedText) {
+                tvPetName.setText(translatedText);
+                nameDone[0] = true;
+                checkReady.run();
+            }
+            @Override
+            public void onError(Throwable t) {
+                tvPetName.setText(pet.getName()); // fallback на оригинал
+                nameDone[0] = true;
+                checkReady.run();
+            }
+        });
+
+        // 2. Перевод описания через DeepL
+        TranslationManager.translateText(pet.getDescription(), new TranslationManager.TranslationCallback() {
+            @Override
+            public void onSuccess(String translatedText) {
+                tvPetDescription.setText(translatedText);
+                descDone[0] = true;
+                checkReady.run();
+            }
+            @Override
+            public void onError(Throwable t) {
+                tvPetDescription.setText(pet.getDescription()); // fallback на оригинал
+                descDone[0] = true;
+                checkReady.run();
+            }
+        });
+
+        // Загрузка фото через Glide
         String photoUrl = pet.getPhotoUrl();
         if (photoUrl != null && !photoUrl.trim().isEmpty()) {
             if (photoUrl.startsWith("/")) {
-                photoUrl = "https://pawinderserver-production.up.railway.app" + photoUrl;
+                photoUrl = "https://pawinder-server.onrender.com/" + photoUrl;
             }
-            currentPhotoUrl = photoUrl; // Сохраняем ссылку для полного экрана
+            currentPhotoUrl = photoUrl;
 
             Glide.with(requireContext())
                     .load(photoUrl)
@@ -152,17 +198,9 @@ public class SwipeFragment extends Fragment {
             currentPhotoUrl = "";
         }
 
-        // Сброс позиции при 0% прозрачности, чтобы исключить скачки
         petCardView.setTranslationX(0);
         petCardView.setTranslationY(0);
         petCardView.setRotation(0);
-        petCardView.setAlpha(0f);
-
-        // Плавное появление
-        petCardView.animate()
-                .alpha(1f)
-                .setDuration(150)
-                .start();
     }
 
     // Красивое модальное окно с полупрозрачным фоном, закругленными углами и анимацией
