@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.ui.feed;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.pawinder_11.logic.feed.FeedLogicProvider;
+import com.example.pawinder_11.R;
 import com.example.pawinder_11.api.ApiClient;
 import com.example.pawinder_11.model.Pet;
 
@@ -30,6 +32,13 @@ public class FeedFragment extends Fragment {
 
     public FeedFragment() {
         super(R.layout.fragment_feed);
+    }
+
+    // Обновление языка для текущей ленты без сброса скролла
+    public void refreshLanguage() {
+        if (feedAdapter != null) {
+            feedAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override

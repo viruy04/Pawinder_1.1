@@ -6,6 +6,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.example.pawinder_11.utils.AppInfo;
+
 public class AppInfoTest {
 
     @Test

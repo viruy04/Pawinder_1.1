@@ -1,8 +1,10 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.ui.auth;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.pawinder_11.R;
 
 public class LoginActivity extends AppCompatActivity {
     public class Constants {
