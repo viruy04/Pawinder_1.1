@@ -1,5 +1,7 @@
 package com.example.pawinder_11.api;
 
+import java.util.concurrent.TimeUnit;
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -10,8 +12,16 @@ public class ApiClient {
 
     public static PawinderApi getApi() {
         if (retrofit == null) {
+            // Настройка таймаута ожидания 40 секунд для пробуждения сервера
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .connectTimeout(40, TimeUnit.SECONDS)
+                    .readTimeout(40, TimeUnit.SECONDS)
+                    .writeTimeout(40, TimeUnit.SECONDS)
+                    .build();
+
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
