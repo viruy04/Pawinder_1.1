@@ -1,5 +1,6 @@
 package com.example.pawinder_11.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -9,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 
+import com.example.pawinder_11.ui.auth.LoginActivity;
 import com.example.pawinder_11.utils.AppInfo;
+import com.example.pawinder_11.utils.SessionManager;
 import com.example.pawinder_11.BuildConfig;
 import com.example.pawinder_11.ui.favorites.FavoritesFragment;
 import com.example.pawinder_11.ui.feed.FeedFragment;
@@ -31,6 +34,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Не вошли — отправляем на экран входа
+        if (!SessionManager.isLoggedIn(this)) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
         Log.i("PawinderApp", "Запуск приложения");
         Log.i("PawinderApp", "Server URL: " + BuildConfig.SERVER_BASE_URL);
         Log.i("PawinderApp", "App version: " + AppInfo.format());
