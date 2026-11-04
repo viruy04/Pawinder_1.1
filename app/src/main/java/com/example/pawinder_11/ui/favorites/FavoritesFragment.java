@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.ui.favorites;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.pawinder_11.R;
 
 public class FavoritesFragment extends Fragment {
 

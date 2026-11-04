@@ -6,6 +6,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.example.pawinder_11.logic.feed.AlternativeFeedLogic;
+import com.example.pawinder_11.logic.feed.DefaultFeedLogic;
+import com.example.pawinder_11.logic.feed.FeedLogicContract;
+
 import org.junit.Test;
 
 import java.util.Collections;

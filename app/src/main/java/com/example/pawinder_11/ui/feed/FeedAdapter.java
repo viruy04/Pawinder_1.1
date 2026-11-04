@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.ui.feed;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.pawinder_11.logic.feed.FeedLogicProvider;
+import com.example.pawinder_11.R;
+import com.example.pawinder_11.utils.TranslationManager;
 import com.example.pawinder_11.model.Pet;
 
 import java.util.List;
@@ -39,16 +43,45 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
     @Override
     public void onBindViewHolder(@NonNull FeedViewHolder holder, int position) {
         Pet pet = petList.get(position);
+        String petName = pet.getName();
 
-        // Только имя, без описания
-        holder.tvName.setText(pet.getName());
+        holder.tvName.setTag(petName);
 
+        // 1. Включаем прогресс-бар, скрываем и текст, и обе картинки
+        holder.progressBarItem.setVisibility(View.VISIBLE);
+        holder.tvName.setVisibility(View.INVISIBLE);
+        holder.ivPhoto.setVisibility(View.INVISIBLE);
+        holder.ivPhotoBg.setVisibility(View.INVISIBLE);
+
+        // 2. Запускаем перевод через DeepL
+        TranslationManager.translateText(context, petName, new TranslationManager.TranslationCallback() {
+            @Override
+            public void onSuccess(String translatedText) {
+                if (petName.equals(holder.tvName.getTag())) {
+                    holder.tvName.setText(translatedText);
+                    holder.progressBarItem.setVisibility(View.GONE);
+                    holder.tvName.setVisibility(View.VISIBLE);
+                    holder.ivPhoto.setVisibility(View.VISIBLE);
+                    holder.ivPhotoBg.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override
+            public void onError(Throwable t) {
+                if (petName.equals(holder.tvName.getTag())) {
+                    holder.tvName.setText(petName);
+                    holder.progressBarItem.setVisibility(View.GONE);
+                    holder.tvName.setVisibility(View.VISIBLE);
+                    holder.ivPhoto.setVisibility(View.VISIBLE);
+                    holder.ivPhotoBg.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        // 3. Glide загружает картинку в фоне (пока крутится прогресс-бар перевода)
         String photoUrl = FeedLogicProvider.getInstance().resolvePhotoUrl(
                 pet.getPhotoUrl(),
-                "https://pawinderserver-production.up.railway.app");
+                "https://pawinder-server.onrender.com/");
         if (photoUrl != null) {
-
-            // 1. Фоновое изображение (TikTok-стиль: растянутое с centerCrop)
             Glide.with(context)
                     .load(photoUrl)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -57,7 +90,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                     .error(darkPlaceholder)
                     .into(holder.ivPhotoBg);
 
-            // 2. Основное изображение (в оригинальных пропорциях: fitCenter)
             Glide.with(context)
                     .load(photoUrl)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -79,12 +111,14 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
     static class FeedViewHolder extends RecyclerView.ViewHolder {
         ImageView ivPhoto, ivPhotoBg;
         TextView tvName;
+        ProgressBar progressBarItem; // Объявляем ProgressBar
 
         public FeedViewHolder(@NonNull View itemView) {
             super(itemView);
             ivPhoto = itemView.findViewById(R.id.ivFeedPhoto);
             ivPhotoBg = itemView.findViewById(R.id.ivFeedPhotoBg);
             tvName = itemView.findViewById(R.id.tvFeedName);
+            progressBarItem = itemView.findViewById(R.id.progressBarItem); // Инициализируем
         }
     }
 }

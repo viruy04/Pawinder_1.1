@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.logic.feed;
 
 import java.util.List;
 

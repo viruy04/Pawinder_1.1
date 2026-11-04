@@ -1,4 +1,4 @@
-package com.example.pawinder_11;
+package com.example.pawinder_11.ui.swipe;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -24,6 +24,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.pawinder_11.R;
+import com.example.pawinder_11.utils.TranslationManager;
 import com.example.pawinder_11.api.ApiClient;
 import com.example.pawinder_11.model.Pet;
 
@@ -35,12 +37,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SwipeFragment extends Fragment {
-    private static final int PAGE_SIZE = 5;
-    private static final int PREFETCH_LEFT = 2;
-    private int page = 0;
-    private boolean isLoading = false;
-    private boolean isLastPage = false;
-    private boolean waitingForMore = false;
+
     private ProgressBar progressBar;
     private View contentContainer;
     private CardView petCardView;
@@ -63,6 +60,13 @@ public class SwipeFragment extends Fragment {
 
     public SwipeFragment() {
         super(R.layout.fragment_swipe);
+    }
+
+    // Обновление языка для текущей карточки без сброса позиции
+    public void refreshLanguage() {
+        if (petList != null && !petList.isEmpty() && currentIndex < petList.size()) {
+            displayPet(petList.get(currentIndex));
+        }
     }
 
     @Override
@@ -88,81 +92,44 @@ public class SwipeFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         contentContainer.setVisibility(View.GONE);
 
-        loadPets();
+        loadPetsFromApi();
     }
 
-    private void loadPets() {
-        if (isLoading || isLastPage) return;
-        isLoading = true;
-
-        ApiClient.getApi().getPets(page, PAGE_SIZE).enqueue(new Callback<List<Pet>>() {
+    private void loadPetsFromApi() {
+        ApiClient.getApi().getAllPets().enqueue(new Callback<List<Pet>>() {
             @Override
             public void onResponse(Call<List<Pet>> call, Response<List<Pet>> response) {
-                isLoading = false;
-                if (!isAdded()) return;
-                progressBar.setVisibility(View.GONE);
+                // УБРАЛИ отсюда progressBar.setVisibility(View.GONE);
 
-                if (!response.isSuccessful() || response.body() == null) {
-                    handleLoadError();
-                    return;
-                }
-
-                List<Pet> newPets = response.body();
-                if (newPets.size() < PAGE_SIZE) isLastPage = true;
-
-                if (newPets.isEmpty()) {
-                    if (petList.isEmpty()) {
-                        Toast.makeText(getContext(), "Список питомцев пуст", Toast.LENGTH_SHORT).show();
-                    } else if (waitingForMore) {   // дошли до конца -> начинаем сначала
-                        waitingForMore = false;
-                        currentIndex = 0;
-                        displayPet(petList.get(0));
-                    }
-                    return;
-                }
-
-                page++;
-                boolean firstLoad = petList.isEmpty();
-                petList.addAll(newPets);
-                preloadImages(newPets);
-                contentContainer.setVisibility(View.VISIBLE);
-
-                if (firstLoad) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    petList = response.body();
                     currentIndex = 0;
-                    displayPet(petList.get(0));
-                } else if (waitingForMore) {
-                    waitingForMore = false;
-                    displayPet(petList.get(currentIndex));
+
+                    preloadAllPetImages();
+                    displayPet(petList.get(currentIndex)); // Прогресс-бар выключится внутри этого метода после перевода
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Список питомцев пуст", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Pet>> call, Throwable t) {
-                isLoading = false;
-                if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
                 Log.e("API_ERROR", "Ошибка сети", t);
-                handleLoadError();
+                Toast.makeText(getContext(), "Ошибка сети: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void handleLoadError() {
-        Toast.makeText(getContext(), "Не удалось загрузить питомцев", Toast.LENGTH_SHORT).show();
-        if (waitingForMore && !petList.isEmpty()) {
-            waitingForMore = false;
-            currentIndex = 0;
-            displayPet(petList.get(0));
-        }
-    }
+    private void preloadAllPetImages() {
+        if (petList == null || getContext() == null) return;
 
-    private void preloadImages(List<Pet> pets) {
-        if (getContext() == null) return;
-        for (Pet p : pets) {
+        for (Pet p : petList) {
             String url = p.getPhotoUrl();
             if (url != null && !url.trim().isEmpty()) {
                 if (url.startsWith("/")) {
-                    url = "https://pawinderserver-production.up.railway.app" + url;
+                    url = "https://pawinder-server.onrender.com/" + url;
                 }
                 Glide.with(requireContext())
                         .load(url)
@@ -174,15 +141,63 @@ public class SwipeFragment extends Fragment {
     }
 
     private void displayPet(Pet pet) {
-        tvPetName.setText(pet.getName());
-        tvPetDescription.setText(pet.getDescription());
+        // Держим прогресс-бар включенным, а карточку скрытой до завершения перевода
+        progressBar.setVisibility(View.VISIBLE);
+        contentContainer.setVisibility(View.INVISIBLE);
 
+        final boolean[] nameDone = {false};
+        final boolean[] descDone = {false};
+
+        Runnable checkReady = () -> {
+            if (nameDone[0] && descDone[0]) {
+                // Когда оба перевода готовы — прячем крутилку и показываем карточку
+                progressBar.setVisibility(View.GONE);
+                contentContainer.setVisibility(View.VISIBLE);
+                petCardView.setAlpha(0f);
+                petCardView.animate().alpha(1f).setDuration(150).start();
+            }
+        };
+
+        // 1. Перевод имени через DeepL
+        // 1. Перевод имени через DeepL (передаем requireContext())
+        TranslationManager.translateText(requireContext(), pet.getName(), new TranslationManager.TranslationCallback() {
+            @Override
+            public void onSuccess(String translatedText) {
+                tvPetName.setText(translatedText);
+                nameDone[0] = true;
+                checkReady.run();
+            }
+            @Override
+            public void onError(Throwable t) {
+                tvPetName.setText(pet.getName());
+                nameDone[0] = true;
+                checkReady.run();
+            }
+        });
+
+        // 2. Перевод описания через DeepL (передаем requireContext())
+        TranslationManager.translateText(requireContext(), pet.getDescription(), new TranslationManager.TranslationCallback() {
+            @Override
+            public void onSuccess(String translatedText) {
+                tvPetDescription.setText(translatedText);
+                descDone[0] = true;
+                checkReady.run();
+            }
+            @Override
+            public void onError(Throwable t) {
+                tvPetDescription.setText(pet.getDescription());
+                descDone[0] = true;
+                checkReady.run();
+            }
+        });
+
+        // Загрузка фото через Glide
         String photoUrl = pet.getPhotoUrl();
         if (photoUrl != null && !photoUrl.trim().isEmpty()) {
             if (photoUrl.startsWith("/")) {
-                photoUrl = "https://pawinderserver-production.up.railway.app" + photoUrl;
+                photoUrl = "https://pawinder-server.onrender.com/" + photoUrl;
             }
-            currentPhotoUrl = photoUrl; // Сохраняем ссылку для полного экрана
+            currentPhotoUrl = photoUrl;
 
             Glide.with(requireContext())
                     .load(photoUrl)
@@ -193,17 +208,9 @@ public class SwipeFragment extends Fragment {
             currentPhotoUrl = "";
         }
 
-        // Сброс позиции при 0% прозрачности, чтобы исключить скачки
         petCardView.setTranslationX(0);
         petCardView.setTranslationY(0);
         petCardView.setRotation(0);
-        petCardView.setAlpha(0f);
-
-        // Плавное появление
-        petCardView.animate()
-                .alpha(1f)
-                .setDuration(150)
-                .start();
     }
 
     // Красивое модальное окно с полупрозрачным фоном, закругленными углами и анимацией
@@ -342,24 +349,11 @@ public class SwipeFragment extends Fragment {
     }
 
     private void showNextPet() {
-        if (petList.isEmpty()) return;
+        if (petList == null || petList.isEmpty()) return;
 
         currentIndex++;
-
         if (currentIndex >= petList.size()) {
-            if (isLastPage) {
-                currentIndex = 0;                 // всё просмотрено -> по кругу
-            } else {
-                waitingForMore = true;            // юзер долистал быстрее, чем пришли данные
-                progressBar.setVisibility(View.VISIBLE);
-                loadPets();
-                return;
-            }
-        }
-
-        // prefetch: осталось мало -> тихо подгружаем следующие 5
-        if (petList.size() - currentIndex <= PREFETCH_LEFT) {
-            loadPets();
+            currentIndex = 0;
         }
 
         displayPet(petList.get(currentIndex));
