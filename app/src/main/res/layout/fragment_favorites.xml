@@ -145,6 +145,35 @@
             app:layout_constraintStart_toEndOf="@id/tvEmail"
             app:layout_constraintTop_toBottomOf="@id/tvCountry" />
 
+        <!-- Выход -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="16dp"
+            android:text="Выйти"
+            android:textAllCaps="false"
+            android:textColor="@color/pw_text_on_tan"
+            app:backgroundTint="@color/pw_button_tan"
+            app:cornerRadius="12dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvBirthDate" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="16dp"
+            android:text="Изменить"
+            android:textAllCaps="false"
+            android:textColor="@color/pw_button_tan"
+            app:backgroundTint="@color/pw_button_brown"
+            app:cornerRadius="12dp"
+            app:layout_constraintStart_toEndOf="@id/btnLogout"
+            app:layout_constraintTop_toBottomOf="@id/tvBirthDate" />
+
         <!-- Избранное -->
         <TextView
             android:id="@+id/tvFavoritesTitle"
@@ -170,7 +199,7 @@
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvFavoritesTitle">
+            app:layout_constraintTop_toBottomOf="@id/btnLogout">
 
         </LinearLayout>
 
