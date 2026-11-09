@@ -12,11 +12,21 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
+
+import com.example.pawinder_11.model.City;
+import com.example.pawinder_11.model.Country;
+import com.example.pawinder_11.model.Profile;
+import com.example.pawinder_11.model.ProfileUpdateRequest;
+import retrofit2.http.PUT;
 
 public interface PawinderApi {
 
     @GET("api/pets")
     Call<List<Pet>> getAllPets();
+
+    @GET("api/pets")
+    Call<List<Pet>> getPets(@Query("page") int page, @Query("size") int size);
 
     @GET("api/pets/type/{typeId}")
     Call<List<Pet>> getPetsByType(@Path("typeId") int typeId);
@@ -26,4 +36,16 @@ public interface PawinderApi {
 
     @POST("api/auth/register")
     Call<User> register(@Body RegisterRequest body);
+
+    @GET("api/users/{id}")
+    Call<Profile> getProfile(@Path("id") int userId);
+
+    @PUT("api/users/{id}/profile")
+    Call<Profile> updateProfile(@Path("id") int userId, @Body ProfileUpdateRequest body);
+
+    @GET("api/countries")
+    Call<List<Country>> getCountries();
+
+    @GET("api/countries/{id}/cities")
+    Call<List<City>> getCities(@Path("id") int countryId);
 }
