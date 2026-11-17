@@ -8,7 +8,7 @@ plugins {
 
 val serverBaseUrl: String = providers
     .gradleProperty("pawinder.serverBaseUrl")
-    .orElse("https://pawinderserver-production.up.railway.app/")
+    .orElse("https://pawinder-server.onrender.com/")
     .get()
 
 val validServerUrl = serverBaseUrl.matches(
