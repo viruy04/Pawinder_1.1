@@ -1,0 +1,11 @@
+implementation,run,time_ms,median_ms
+DefaultFeedLogic,1,4.814,2.632
+DefaultFeedLogic,2,2.632,2.632
+DefaultFeedLogic,3,2.582,2.632
+DefaultFeedLogic,4,2.620,2.632
+DefaultFeedLogic,5,3.184,2.632
+AlternativeFeedLogic,1,4.993,3.300
+AlternativeFeedLogic,2,3.175,3.300
+AlternativeFeedLogic,3,3.300,3.300
+AlternativeFeedLogic,4,3.351,3.300
+AlternativeFeedLogic,5,3.127,3.300
