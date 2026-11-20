@@ -22,6 +22,8 @@ import com.example.pawinder_11.utils.ReglamentReader;
 import com.example.pawinder_11.ui.swipe.SwipeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigation;
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         if (btnLanguage != null) {
             // Инициализируем язык из SharedPreferences
             String currentLang = LanguageManager.getLanguage(this);
-            btnLanguage.setText(currentLang.toUpperCase());
+            btnLanguage.setText(currentLang.toUpperCase(Locale.ROOT));
 
             btnLanguage.setOnClickListener(v -> {
                 PopupMenu popup = new PopupMenu(this, v);
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
                     // Сохраняем язык
                     LanguageManager.setLanguage(this, selectedLang);
-                    btnLanguage.setText(selectedLang.toUpperCase());
+                    btnLanguage.setText(selectedLang.toUpperCase(Locale.ROOT));
 
                     // Находим ТЕКУЩИЙ открытый экран
                     Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);

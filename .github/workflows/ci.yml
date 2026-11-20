@@ -80,6 +80,10 @@ jobs:
       - name: Запуск Android Lint
         run: ./gradlew lintDebug --stacktrace
 
+      - name: Проверка Quality Gate
+        shell: pwsh
+        run: ./.github/scripts/check-lint-quality-gate.ps1
+
       - name: Сохранение отчёта Lint
         if: always()
         uses: actions/upload-artifact@v4
