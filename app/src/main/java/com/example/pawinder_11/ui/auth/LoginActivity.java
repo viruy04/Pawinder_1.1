@@ -2,6 +2,7 @@ package com.example.pawinder_11.ui.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etLogin;
     private EditText etPassword;
     private MaterialButton btnLogin;
+    private View loadingOverlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
         etLogin = findViewById(R.id.etLogin);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
+        loadingOverlay = findViewById(R.id.loadingOverlay);
         MaterialButton btnGoToRegister = findViewById(R.id.btnGoToRegister);
 
         btnLogin.setOnClickListener(v -> attemptLogin());
@@ -53,14 +56,14 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // сервер на Render может "просыпаться" до 40 секунд — блокируем повторные нажатия
-        btnLogin.setEnabled(false);
+        // сервер на Render может "просыпаться" — показываем лапки и блокируем повторные нажатия
+        setLoading(true);
 
         ApiClient.getApi().login(new LoginRequest(nickname, password))
                 .enqueue(new Callback<User>() {
                     @Override
                     public void onResponse(Call<User> call, Response<User> response) {
-                        btnLogin.setEnabled(true);
+                        setLoading(false);
                         if (response.isSuccessful() && response.body() != null) {
                             SessionManager.save(LoginActivity.this, response.body());
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -76,10 +79,15 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
-                        btnLogin.setEnabled(true);
+                        setLoading(false);
                         toast("Нет связи с сервером");
                     }
                 });
+    }
+
+    private void setLoading(boolean loading) {
+        loadingOverlay.setVisibility(loading ? View.VISIBLE : View.GONE);
+        btnLogin.setEnabled(!loading);
     }
 
     private void toast(String text) {

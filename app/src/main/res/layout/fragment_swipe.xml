@@ -6,11 +6,11 @@
     android:padding="16dp">
 
     <!-- Индикатор загрузки -->
-    <ProgressBar
+    <com.example.pawinder_11.ui.common.PawLoaderView
         android:id="@+id/progressBar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:indeterminateTint="#8D6E63"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:contentDescription="Загрузка"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

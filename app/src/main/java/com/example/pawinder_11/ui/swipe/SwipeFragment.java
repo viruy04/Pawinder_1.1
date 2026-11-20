@@ -38,7 +38,7 @@ import retrofit2.Response;
 
 public class SwipeFragment extends Fragment {
 
-    private ProgressBar progressBar;
+    private View progressBar;
     private View contentContainer;
     private CardView petCardView;
 
