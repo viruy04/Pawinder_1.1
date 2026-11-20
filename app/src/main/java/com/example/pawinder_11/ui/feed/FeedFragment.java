@@ -26,7 +26,7 @@ import retrofit2.Response;
 public class FeedFragment extends Fragment {
 
     private ViewPager2 viewPagerFeed;
-    private ProgressBar progressBarFeed;
+    private View progressBarFeed;
     private FeedAdapter feedAdapter;
     private final List<Pet> petList = new ArrayList<>();
 
