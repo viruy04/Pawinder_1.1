@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.pawinder_11.logic.feed.FeedLogic;
 import com.example.pawinder_11.logic.feed.FeedLogicProvider;
 import com.example.pawinder_11.R;
 import com.example.pawinder_11.api.ApiClient;
@@ -57,33 +58,76 @@ public class FeedFragment extends Fragment {
         loadPets();
     }
 
+
     private void loadPets() {
         progressBarFeed.setVisibility(View.VISIBLE);
+
+        int faultScenario = FeedFaultInjector.getScenario(requireActivity());
+
+        if (faultScenario == FeedFaultInjector.HTTP_500) {
+            handleLoadError("Не удалось загрузить ленту");
+            return;
+        }
+
+        if (faultScenario == FeedFaultInjector.NETWORK_ERROR) {
+            handleLoadError("Ошибка сети: тестовый сетевой сбой");
+            return;
+        }
+
         ApiClient.getApi().getAllPets().enqueue(new Callback<List<Pet>>() {
             @Override
-            public void onResponse(@NonNull Call<List<Pet>> call, @NonNull Response<List<Pet>> response) {
+            public void onResponse(
+                    @NonNull Call<List<Pet>> call,
+                    @NonNull Response<List<Pet>> response
+            ) {
                 if (!isAdded()) return;
+
                 progressBarFeed.setVisibility(View.GONE);
 
                 if (FeedLogicProvider.getInstance().isUsableResponse(
                         response.isSuccessful(), response.body())) {
-                    petList.clear();
-                    petList.addAll(response.body());
-                    feedAdapter.notifyDataSetChanged();
+                    if (FeedLogic.replaceItemsSafely(petList, response.body())) {
+                        feedAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(
+                                requireContext(),
+                                "Не удалось обработать данные ленты",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
                 } else {
-                    Toast.makeText(getContext(), "Не удалось загрузить ленту", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            getContext(),
+                            "Не удалось загрузить ленту",
+                            Toast.LENGTH_SHORT
+                    ).show();
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Pet>> call, @NonNull Throwable t) {
+            public void onFailure(
+                    @NonNull Call<List<Pet>> call,
+                    @NonNull Throwable t
+            ) {
                 if (!isAdded()) return;
-                progressBarFeed.setVisibility(View.GONE);
+
                 Log.e("FeedFragment", "Error loading feed", t);
-                Toast.makeText(getContext(),
-                        FeedLogicProvider.getInstance().networkErrorMessage(t),
-                        Toast.LENGTH_SHORT).show();
+                handleLoadError(
+                        FeedLogicProvider.getInstance().networkErrorMessage(t)
+                );
             }
         });
+    }
+
+    private void handleLoadError(String message) {
+        if (!isAdded()) return;
+
+        progressBarFeed.setVisibility(View.GONE);
+
+        Toast.makeText(
+                requireContext(),
+                message,
+                Toast.LENGTH_SHORT
+        ).show();
     }
 }

@@ -9,6 +9,7 @@ import com.example.pawinder_11.logic.feed.FeedLogic;
 
 import org.junit.Test;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -122,5 +123,32 @@ public class FeedLogicTest {
     @Test
     public void tcFd18_throwableNull_prefixOnly() {
         assertEquals("Ошибка сети", FeedLogic.networkErrorMessage(null));
+    }
+
+    @Test
+    public void tcFd19_processingException_keepsPreviousItems() {
+        List<String> currentItems = new ArrayList<>();
+        currentItems.add("old pet");
+
+        List<String> brokenItems = new AbstractList<String>() {
+            @Override
+            public String get(int index) {
+                throw new RuntimeException("processing error");
+            }
+
+            @Override
+            public int size() {
+                return 1;
+            }
+        };
+
+        boolean result = FeedLogic.replaceItemsSafely(
+                currentItems,
+                brokenItems
+        );
+
+        assertFalse(result);
+        assertEquals(1, currentItems.size());
+        assertEquals("old pet", currentItems.get(0));
     }
 }
