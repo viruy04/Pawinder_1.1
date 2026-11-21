@@ -1,5 +1,6 @@
 package com.example.pawinder_11.logic.feed;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,5 +55,19 @@ public final class FeedLogic {
             return NETWORK_ERROR_PREFIX;
         }
         return NETWORK_ERROR_PREFIX + ": " + message;
+    }
+
+    public static <T> boolean replaceItemsSafely(
+            List<T> target,
+            List<? extends T> source
+    ) {
+        try {
+            List<T> newItems = new ArrayList<>(source);
+            target.clear();
+            target.addAll(newItems);
+            return true;
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 }
