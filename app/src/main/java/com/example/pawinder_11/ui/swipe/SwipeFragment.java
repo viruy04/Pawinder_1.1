@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.pawinder_11.R;
+import com.example.pawinder_11.utils.CustomToast;
 import com.example.pawinder_11.utils.SessionManager;
 import com.example.pawinder_11.utils.TranslationManager;
 import com.example.pawinder_11.api.ApiClient;
@@ -100,17 +101,17 @@ public class SwipeFragment extends Fragment {
         ApiClient.getApi().getAllPets().enqueue(new Callback<List<Pet>>() {
             @Override
             public void onResponse(Call<List<Pet>> call, Response<List<Pet>> response) {
-                // УБРАЛИ отсюда progressBar.setVisibility(View.GONE);
-
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     petList = response.body();
                     currentIndex = 0;
 
                     preloadAllPetImages();
-                    displayPet(petList.get(currentIndex)); // Прогресс-бар выключится внутри этого метода после перевода
+                    displayPet(petList.get(currentIndex));
                 } else {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Список питомцев пуст", Toast.LENGTH_SHORT).show();
+                    if (getContext() != null) {
+                        CustomToast.showError(requireContext(), "Список питомцев пуст");
+                    }
                 }
             }
 
@@ -118,7 +119,9 @@ public class SwipeFragment extends Fragment {
             public void onFailure(Call<List<Pet>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 Log.e("API_ERROR", "Ошибка сети", t);
-                Toast.makeText(getContext(), "Ошибка сети: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    CustomToast.showError(requireContext(), "Ошибка сети: " + t.getMessage());
+                }
             }
         });
     }
@@ -366,11 +369,9 @@ public class SwipeFragment extends Fragment {
             @Override
             public void onResponse(Call<Pet> call, Response<Pet> response) {
                 if (!isAdded()) return;
-                if (response.code() == 201) {
-                    toast("Добавлено в избранное");
-                } else if (response.code() == 200) {
-                    toast("Уже в избранном");
-                } else {
+                // Успешные инфо-тосты ("Добавлено", "Уже в избранном") убраны.
+                // Оставляем только тосты при ошибке сервера:
+                if (!response.isSuccessful() && response.code() != 201 && response.code() != 200) {
                     toast("Не удалось добавить в избранное: " + response.code());
                 }
             }
@@ -379,13 +380,16 @@ public class SwipeFragment extends Fragment {
             public void onFailure(Call<Pet> call, Throwable t) {
                 if (!isAdded()) return;
                 Log.e("FAVORITES", "add failed", t);
+                // Ошибочный тост оставляем
                 toast("Нет связи с сервером, питомец не добавлен в избранное");
             }
         });
     }
 
     private void toast(String text) {
-        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
+        if (getContext() != null) {
+            CustomToast.showError(requireContext(), text);
+        }
     }
 
     private void showNextPet() {

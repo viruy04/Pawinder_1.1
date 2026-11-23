@@ -13,39 +13,37 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:padding="12dp">
 
-        <ImageView
-            android:id="@+id/ivFavPhoto"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:scaleType="centerCrop" />
+        <!-- Фото питомца с мягко закругленными углами (14dp) -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp">
 
-        <LinearLayout
+            <ImageView
+                android:id="@+id/ivFavPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Название породы -->
+        <TextView
+            android:id="@+id/tvFavName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:orientation="vertical">
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/pw_text_dark"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end" />
 
-            <TextView
-                android:id="@+id/tvFavName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#111111"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvFavDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:textColor="#555555"
-                android:textSize="14sp" />
-        </LinearLayout>
-
+        <!-- Кнопка удаления -->
         <ImageView
             android:id="@+id/btnFavRemove"
             android:layout_width="40dp"

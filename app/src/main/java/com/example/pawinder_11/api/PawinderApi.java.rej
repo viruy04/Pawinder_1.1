@@ -1,0 +1,44 @@
+diff a/app/src/main/java/com/example/pawinder_11/api/PawinderApi.java b/app/src/main/java/com/example/pawinder_11/api/PawinderApi.java	(rejected hunks)
+@@ -9,11 +9,14 @@ import java.util.List;
+ 
+ import retrofit2.Call;
+ import retrofit2.http.Body;
++import retrofit2.http.DELETE;
+ import retrofit2.http.GET;
+ import retrofit2.http.POST;
+ import retrofit2.http.Path;
+ import retrofit2.http.Query;
+ 
++import com.example.pawinder_11.model.Avatar;
++import com.example.pawinder_11.model.AvatarUpdateRequest;
+ import com.example.pawinder_11.model.City;
+ import com.example.pawinder_11.model.Country;
+ import com.example.pawinder_11.model.Profile;
+@@ -43,9 +46,27 @@ public interface PawinderApi {
+     @PUT("api/users/{id}/profile")
+     Call<Profile> updateProfile(@Path("id") int userId, @Body ProfileUpdateRequest body);
+ 
++    @GET("api/avatars")
++    Call<List<Avatar>> getAvatars();
++
++    @PUT("api/users/{id}/avatar")
++    Call<Profile> updateAvatar(@Path("id") int userId, @Body AvatarUpdateRequest body);
++
+     @GET("api/countries")
+     Call<List<Country>> getCountries();
+ 
+     @GET("api/countries/{id}/cities")
+     Call<List<City>> getCities(@Path("id") int countryId);
++
++    // ---------- избранное ----------
++
++    @GET("api/users/{id}/favorites")
++    Call<List<Pet>> getFavorites(@Path("id") int userId);
++
++    // 201 — добавлено, 200 — уже было в избранном (дубликат не создаётся)
++    @POST("api/users/{id}/favorites/{petId}")
++    Call<Pet> addFavorite(@Path("id") int userId, @Path("petId") int petId);
++
++    @DELETE("api/users/{id}/favorites/{petId}")
++    Call<Void> removeFavorite(@Path("id") int userId, @Path("petId") int petId);
+ }
