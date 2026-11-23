@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
                         ((SwipeFragment) currentFragment).refreshLanguage();
                     } else if (currentFragment instanceof FeedFragment) {
                         ((FeedFragment) currentFragment).refreshLanguage();
+                    } else if (currentFragment instanceof FavoritesFragment) {
+                        ((FavoritesFragment) currentFragment).refreshLanguage();
                     }
                     return true;
                 });

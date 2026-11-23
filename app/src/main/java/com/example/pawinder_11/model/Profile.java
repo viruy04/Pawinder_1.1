@@ -10,6 +10,8 @@ public class Profile {
     private String country;
     private Integer id_city;
     private String city;
+    private Integer id_avatar;
+    private String avatar; // имя файла аватарки из таблицы avatar
 
     public int getId() { return id_user; }
     public String getNickname() { return nickname; }
@@ -20,4 +22,6 @@ public class Profile {
     public String getCountry() { return country; }
     public Integer getIdCity() { return id_city; }
     public String getCity() { return city; }
+    public Integer getIdAvatar() { return id_avatar; }
+    public String getAvatar() { return avatar; }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -48,4 +49,16 @@ public interface PawinderApi {
 
     @GET("api/countries/{id}/cities")
     Call<List<City>> getCities(@Path("id") int countryId);
+
+    // ---------- избранное ----------
+
+    @GET("api/users/{id}/favorites")
+    Call<List<Pet>> getFavorites(@Path("id") int userId);
+
+    // 201 — добавлено, 200 — уже было в избранном (дубликат не создаётся)
+    @POST("api/users/{id}/favorites/{petId}")
+    Call<Pet> addFavorite(@Path("id") int userId, @Path("petId") int petId);
+
+    @DELETE("api/users/{id}/favorites/{petId}")
+    Call<Void> removeFavorite(@Path("id") int userId, @Path("petId") int petId);
 }

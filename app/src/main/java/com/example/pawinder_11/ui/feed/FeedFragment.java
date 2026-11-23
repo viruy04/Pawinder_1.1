@@ -16,6 +16,7 @@ import com.example.pawinder_11.logic.feed.FeedLogicProvider;
 import com.example.pawinder_11.R;
 import com.example.pawinder_11.api.ApiClient;
 import com.example.pawinder_11.model.Pet;
+import com.example.pawinder_11.utils.CustomToast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,10 +63,11 @@ public class FeedFragment extends Fragment {
     private void loadPets() {
         progressBarFeed.setVisibility(View.VISIBLE);
 
+        // 1. Проверка внедренных отказов (Fault Injection)
         int faultScenario = FeedFaultInjector.getScenario(requireActivity());
 
         if (faultScenario == FeedFaultInjector.HTTP_500) {
-            handleLoadError("Не удалось загрузить ленту");
+            handleLoadError("Не удалось загрузить ленту (HTTP 500)");
             return;
         }
 
@@ -74,6 +76,7 @@ public class FeedFragment extends Fragment {
             return;
         }
 
+        // 2. Реальный запрос к API
         ApiClient.getApi().getAllPets().enqueue(new Callback<List<Pet>>() {
             @Override
             public void onResponse(
@@ -84,23 +87,20 @@ public class FeedFragment extends Fragment {
 
                 progressBarFeed.setVisibility(View.GONE);
 
-                if (FeedLogicProvider.getInstance().isUsableResponse(
-                        response.isSuccessful(), response.body())) {
-                    if (FeedLogic.replaceItemsSafely(petList, response.body())) {
+                // 3. Использование единого безопасного метода обновления
+                // Мы НЕ делаем petList.clear() и petList.addAll() здесь вручную!
+                // Всё это делает replaceItemsSafely внутри FeedLogic
+
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean updated = FeedLogic.replaceItemsSafely(petList, response.body());
+
+                    if (updated) {
                         feedAdapter.notifyDataSetChanged();
                     } else {
-                        Toast.makeText(
-                                requireContext(),
-                                "Не удалось обработать данные ленты",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        CustomToast.showError(requireContext(), "Не удалось обработать данные ленты");
                     }
                 } else {
-                    Toast.makeText(
-                            getContext(),
-                            "Не удалось загрузить ленту",
-                            Toast.LENGTH_SHORT
-                    ).show();
+                    CustomToast.showError(requireContext(), "Ошибка сервера: " + response.code());
                 }
             }
 
@@ -111,23 +111,16 @@ public class FeedFragment extends Fragment {
             ) {
                 if (!isAdded()) return;
 
-                Log.e("FeedFragment", "Error loading feed", t);
-                handleLoadError(
-                        FeedLogicProvider.getInstance().networkErrorMessage(t)
-                );
+                Log.e("FeedFragment", "Network error", t);
+                // При сетевой ошибке мы НЕ трогаем petList, старые карточки остаются
+                handleLoadError("Ошибка сети: " + t.getMessage());
             }
         });
     }
 
     private void handleLoadError(String message) {
         if (!isAdded()) return;
-
         progressBarFeed.setVisibility(View.GONE);
-
-        Toast.makeText(
-                requireContext(),
-                message,
-                Toast.LENGTH_SHORT
-        ).show();
+        CustomToast.showError(requireContext(), message);
     }
 }

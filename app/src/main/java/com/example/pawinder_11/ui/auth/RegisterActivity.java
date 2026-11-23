@@ -13,6 +13,7 @@ import com.example.pawinder_11.api.ApiClient;
 import com.example.pawinder_11.model.RegisterRequest;
 import com.example.pawinder_11.model.User;
 import com.example.pawinder_11.ui.main.MainActivity;
+import com.example.pawinder_11.utils.CustomToast;
 import com.example.pawinder_11.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
@@ -104,6 +105,5 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void toast(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-    }
-}
+        CustomToast.showError(this, text);
+    }}
