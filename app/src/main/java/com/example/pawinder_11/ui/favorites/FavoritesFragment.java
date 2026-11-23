@@ -5,13 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,16 +19,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.pawinder_11.R;
 import com.example.pawinder_11.api.ApiClient;
-import com.bumptech.glide.Glide;
 import com.example.pawinder_11.model.City;
 import com.example.pawinder_11.model.Country;
 import com.example.pawinder_11.model.Pet;
 import com.example.pawinder_11.model.Profile;
 import com.example.pawinder_11.model.ProfileUpdateRequest;
 import com.example.pawinder_11.ui.auth.LoginActivity;
+import com.example.pawinder_11.utils.CustomToast;
 import com.example.pawinder_11.utils.SessionManager;
+import com.example.pawinder_11.utils.TranslationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,10 @@ import retrofit2.Response;
 
 public class FavoritesFragment extends Fragment {
 
+    // ===== ПОДКЛЮЧЕННЫЕ КАРТИНКИ АВАТАРОК ДЛЯ ТОСТОВ =====
+    private static final int TOAST_AVATAR_ERROR = R.drawable.error; // Для ошибок
+    private static final int TOAST_AVATAR_INFO  = R.drawable.sms;   // Для уведомлений и загрузок
+
     private ImageView avatar;
     private TextView tvNickname;
     private TextView tvSurname;
@@ -48,10 +53,8 @@ public class FavoritesFragment extends Fragment {
     private TextView tvCountry;
     private TextView tvCity;
 
-    // последний загруженный с сервера профиль
     private Profile profile;
 
-    // Доступные аватарки
     private final int[] avatars = {
             R.drawable.image_1,
             R.drawable.image_2,
@@ -70,6 +73,12 @@ public class FavoritesFragment extends Fragment {
         super(R.layout.fragment_favorites);
     }
 
+    public void refreshLanguage() {
+        if (isAdded()) {
+            loadFavorites();
+        }
+    }
+
     @Override
     public void onViewCreated(
             @NonNull View view,
@@ -79,12 +88,12 @@ public class FavoritesFragment extends Fragment {
 
         avatar = view.findViewById(R.id.ivAvatar);
 
-        // Нажатие на аватарку
         avatar.setOnClickListener(v -> showAvatarChooser());
 
-        // Нажатие на карандаш
         ImageView editAvatar = view.findViewById(R.id.ivEditAvatar);
-        editAvatar.setOnClickListener(v -> showAvatarChooser());
+        if (editAvatar != null) {
+            editAvatar.setOnClickListener(v -> showAvatarChooser());
+        }
 
         favoritesList = view.findViewById(R.id.favoritesList);
         tvNickname = view.findViewById(R.id.tvNickname);
@@ -94,8 +103,9 @@ public class FavoritesFragment extends Fragment {
         tvCountry = view.findViewById(R.id.tvCountry);
         tvCity = view.findViewById(R.id.tvCity);
 
-        // ник показываем сразу из сессии, остальное подтянется с сервера
         tvNickname.setText(SessionManager.getNickname(requireContext()));
+
+        showProfileLoadingState();
         loadProfile();
 
         view.findViewById(R.id.btnEditProfile).setOnClickListener(v -> showEditDialog());
@@ -114,7 +124,21 @@ public class FavoritesFragment extends Fragment {
         loadFavorites();
     }
 
-    // ---------- избранное ----------
+    // ---------- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ КАСТОМНЫХ ТОСТОВ ----------
+
+    private void showErrorToast(String text) {
+        if (getContext() != null) {
+            CustomToast.showError(requireContext(), text);
+        }
+    }
+
+    private void showInfoToast(String text) {
+        if (getContext() != null) {
+            CustomToast.showInfo(requireContext(), text);
+        }
+    }
+
+    // ---------- Избранное ----------
 
     private void loadFavorites() {
         int userId = SessionManager.getUserId(requireContext());
@@ -149,19 +173,37 @@ public class FavoritesFragment extends Fragment {
 
         for (Pet pet : favorites) {
             View item = getLayoutInflater().inflate(R.layout.item_favorite_pet, favoritesList, false);
-            ((TextView) item.findViewById(R.id.tvFavName)).setText(pet.getName());
-            ((TextView) item.findViewById(R.id.tvFavDescription)).setText(pet.getDescription());
+            TextView tvFavName = item.findViewById(R.id.tvFavName);
+            ImageView ivFavPhoto = item.findViewById(R.id.ivFavPhoto);
+            View btnFavRemove = item.findViewById(R.id.btnFavRemove);
+
+            tvFavName.setText(pet.getName());
+
+            TranslationManager.translateText(requireContext(), pet.getName(), new TranslationManager.TranslationCallback() {
+                @Override
+                public void onSuccess(String translatedText) {
+                    if (isAdded()) {
+                        tvFavName.setText(translatedText);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    if (isAdded()) {
+                        tvFavName.setText(pet.getName());
+                    }
+                }
+            });
 
             String url = pet.getPhotoUrl();
             if (url != null && !url.trim().isEmpty()) {
                 if (url.startsWith("/")) {
                     url = "https://pawinder-server.onrender.com" + url;
                 }
-                Glide.with(this).load(url).centerCrop()
-                        .into((ImageView) item.findViewById(R.id.ivFavPhoto));
+                Glide.with(this).load(url).centerCrop().into(ivFavPhoto);
             }
 
-            item.findViewById(R.id.btnFavRemove).setOnClickListener(v -> removeFavorite(pet));
+            btnFavRemove.setOnClickListener(v -> removeFavorite(pet));
             favoritesList.addView(item);
         }
     }
@@ -175,14 +217,14 @@ public class FavoritesFragment extends Fragment {
                 if (response.isSuccessful()) {
                     loadFavorites();
                 } else {
-                    toast("Не удалось удалить: " + response.code());
+                    showErrorToast("Не удалось удалить: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 if (!isAdded()) return;
-                toast("Нет связи с сервером");
+                showErrorToast("Нет связи с сервером");
             }
         });
     }
@@ -196,10 +238,30 @@ public class FavoritesFragment extends Fragment {
         favoritesList.addView(message);
     }
 
-    // ---------- профиль ----------
+    // ---------- Профиль ----------
+
+    private void showProfileLoadingState() {
+        tvName.setText("Загрузка…");
+        tvSurname.setText("");
+        tvEmail.setText("Загрузка…");
+        tvCountry.setText("Загрузка…");
+        tvCity.setText("");
+    }
+
+    private void showProfileErrorState(String message) {
+        tvName.setText(message);
+        tvSurname.setText("");
+        tvEmail.setText("—");
+        tvCountry.setText("—");
+        tvCity.setText("");
+    }
 
     private void loadProfile() {
         int userId = SessionManager.getUserId(requireContext());
+        if (userId == -1) return;
+
+        showProfileLoadingState();
+
         ApiClient.getApi().getProfile(userId).enqueue(new Callback<Profile>() {
             @Override
             public void onResponse(Call<Profile> call, Response<Profile> response) {
@@ -208,38 +270,75 @@ public class FavoritesFragment extends Fragment {
                     profile = response.body();
                     bindProfile();
                 } else {
-                    toast("Не удалось загрузить профиль: " + response.code());
+                    showProfileErrorState("Не удалось загрузить");
+                    showErrorToast("Не удалось загрузить профиль: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<Profile> call, Throwable t) {
                 if (!isAdded()) return;
-                toast("Нет связи с сервером");
+                showProfileErrorState("Нет связи с сервером");
+                showErrorToast("Нет связи с сервером");
             }
         });
     }
 
     private void bindProfile() {
-        tvNickname.setText(profile.getNickname());
-        tvSurname.setText(orDefault(profile.getSurname(), "Фамилия не указана"));
-        tvName.setText(orDefault(profile.getName(), "Имя не указано"));
-        tvEmail.setText(profile.getEmail());
-        tvCountry.setText(profile.getCountry() != null
-                ? profile.getCountry() + ","
-                : "Страна не указана");
-        tvCity.setText(orDefault(profile.getCity(), "Город не указан"));
+        if (profile == null) return;
+
+        tvNickname.setText(orDefault(profile.getNickname(), SessionManager.getNickname(requireContext())));
+
+        String name = profile.getName();
+        String surname = profile.getSurname();
+        boolean hasName = name != null && !name.trim().isEmpty();
+        boolean hasSurname = surname != null && !surname.trim().isEmpty();
+
+        if (hasName && hasSurname) {
+            tvName.setText(name);
+            tvSurname.setText(surname);
+        } else if (hasName) {
+            tvName.setText(name);
+            tvSurname.setText("");
+        } else if (hasSurname) {
+            tvName.setText(surname);
+            tvSurname.setText("");
+        } else {
+            tvName.setText("Не указано");
+            tvSurname.setText("");
+        }
+
+        tvEmail.setText(orDefault(profile.getEmail(), "Не указана"));
+
+        String country = profile.getCountry();
+        String city = profile.getCity();
+        boolean hasCountry = country != null && !country.trim().isEmpty();
+        boolean hasCity = city != null && !city.trim().isEmpty();
+
+        if (hasCountry && hasCity) {
+            tvCountry.setText(country + ", ");
+            tvCity.setText(city);
+        } else if (hasCountry) {
+            tvCountry.setText(country);
+            tvCity.setText("");
+        } else if (hasCity) {
+            tvCountry.setText(city);
+            tvCity.setText("");
+        } else {
+            tvCountry.setText("Не указано");
+            tvCity.setText("");
+        }
     }
 
     private static String orDefault(String value, String fallback) {
-        return (value == null || value.isEmpty()) ? fallback : value;
+        return (value == null || value.trim().isEmpty()) ? fallback : value;
     }
 
-    // ---------- редактирование ----------
+    // ---------- Редактирование профиля ----------
 
     private void showEditDialog() {
         if (profile == null) {
-            toast("Профиль ещё загружается");
+            showInfoToast("Профиль ещё загружается");
             return;
         }
 
@@ -254,10 +353,8 @@ public class FavoritesFragment extends Fragment {
 
         List<Country> countries = new ArrayList<>();
         List<City> cities = new ArrayList<>();
-        // город, который выбрать после первой загрузки списка городов
         Integer[] cityToSelect = { profile.getIdCity() };
 
-        // слушатель ставим до адаптера, чтобы он сработал и на первом выборе
         spCountry.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
@@ -282,7 +379,7 @@ public class FavoritesFragment extends Fragment {
                     @Override
                     public void onFailure(Call<List<City>> call, Throwable t) {
                         if (!isAdded()) return;
-                        toast("Не удалось загрузить города");
+                        showErrorToast("Не удалось загрузить города");
                     }
                 });
             }
@@ -316,23 +413,37 @@ public class FavoritesFragment extends Fragment {
             @Override
             public void onFailure(Call<List<Country>> call, Throwable t) {
                 if (!isAdded()) return;
-                toast("Не удалось загрузить страны");
+                showErrorToast("Не удалось загрузить страны");
             }
         });
 
-        new AlertDialog.Builder(requireContext())
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Редактировать профиль")
                 .setView(dialogView)
-                .setPositiveButton("Сохранить", (d, w) -> {
-                    int cityPos = spCity.getSelectedItemPosition();
-                    Integer idCity = (cityPos > 0 && cityPos <= cities.size())
-                            ? cities.get(cityPos - 1).getId()
-                            : null;
-                    saveProfile(etName.getText().toString(),
-                            etSurname.getText().toString(), idCity);
-                })
+                .setPositiveButton("Сохранить", null)
                 .setNegativeButton("Отмена", null)
-                .show();
+                .create();
+
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            int countryPos = spCountry.getSelectedItemPosition();
+            int cityPos = spCity.getSelectedItemPosition();
+
+            if (countryPos > 0 && (cityPos <= 0 || cityPos > cities.size())) {
+                showErrorToast("Пожалуйста, выберите город");
+                return;
+            }
+
+            Integer idCity = (cityPos > 0 && cityPos <= cities.size())
+                    ? cities.get(cityPos - 1).getId()
+                    : null;
+
+            saveProfile(etName.getText().toString(),
+                    etSurname.getText().toString(), idCity);
+
+            dialog.dismiss();
+        });
     }
 
     private void bindCities(Spinner spinner, List<City> cities, Integer selectedId) {
@@ -360,33 +471,25 @@ public class FavoritesFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     profile = response.body();
                     bindProfile();
-                    toast("Профиль сохранён");
                 } else if (response.code() == 400) {
-                    toast("Проверьте введённые данные");
+                    showErrorToast("Проверьте введённые данные");
                 } else {
-                    toast("Ошибка сервера: " + response.code());
+                    showErrorToast("Ошибка сервера: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<Profile> call, Throwable t) {
                 if (!isAdded()) return;
-                toast("Нет связи с сервером");
+                showErrorToast("Нет связи с сервером");
             }
         });
     }
 
-    private void toast(String text) {
-        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
-    }
-
-    // ---------- аватар ----------
+    // ---------- Аватар ----------
 
     private void showAvatarChooser() {
-
         GridLayout grid = new GridLayout(requireContext());
-
-        // 3 аватарки в строке
         grid.setColumnCount(3);
 
         int padding = dpToPx(10);
@@ -398,32 +501,18 @@ public class FavoritesFragment extends Fragment {
                 .create();
 
         for (int avatarResource : avatars) {
-
             ImageView imageView = new ImageView(requireContext());
-
             imageView.setImageResource(avatarResource);
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            GridLayout.LayoutParams params =
-                    new GridLayout.LayoutParams();
-
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = dpToPx(85);
             params.height = dpToPx(85);
-
-            params.setMargins(
-                    dpToPx(5),
-                    dpToPx(5),
-                    dpToPx(5),
-                    dpToPx(5)
-            );
-
+            params.setMargins(dpToPx(5), dpToPx(5), dpToPx(5), dpToPx(5));
             imageView.setLayoutParams(params);
 
-            // Выбор аватарки
             imageView.setOnClickListener(v -> {
-
                 avatar.setImageResource(avatarResource);
-
                 dialog.dismiss();
             });
 
@@ -434,7 +523,6 @@ public class FavoritesFragment extends Fragment {
     }
 
     private int dpToPx(int dp) {
-
         return (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 dp,

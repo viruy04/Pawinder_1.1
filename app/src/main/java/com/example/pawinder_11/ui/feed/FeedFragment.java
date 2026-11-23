@@ -16,6 +16,7 @@ import com.example.pawinder_11.logic.feed.FeedLogicProvider;
 import com.example.pawinder_11.R;
 import com.example.pawinder_11.api.ApiClient;
 import com.example.pawinder_11.model.Pet;
+import com.example.pawinder_11.utils.CustomToast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,26 +92,15 @@ public class FeedFragment extends Fragment {
                 // Всё это делает replaceItemsSafely внутри FeedLogic
 
                 if (response.isSuccessful() && response.body() != null) {
-                    // Пытаемся безопасно обновить список
                     boolean updated = FeedLogic.replaceItemsSafely(petList, response.body());
 
                     if (updated) {
                         feedAdapter.notifyDataSetChanged();
                     } else {
-                        // Если логика вернула false (например, данные пустые или некорректные)
-                        Toast.makeText(
-                                requireContext(),
-                                "Не удалось обработать данные ленты",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        CustomToast.showError(requireContext(), "Не удалось обработать данные ленты");
                     }
                 } else {
-                    // Если сервер вернул ошибку (4xx, 5xx) или пустое тело
-                    Toast.makeText(
-                            requireContext(),
-                            "Ошибка сервера: " + response.code(),
-                            Toast.LENGTH_SHORT
-                    ).show();
+                    CustomToast.showError(requireContext(), "Ошибка сервера: " + response.code());
                 }
             }
 
@@ -130,13 +120,7 @@ public class FeedFragment extends Fragment {
 
     private void handleLoadError(String message) {
         if (!isAdded()) return;
-
         progressBarFeed.setVisibility(View.GONE);
-
-        Toast.makeText(
-                requireContext(),
-                message,
-                Toast.LENGTH_SHORT
-        ).show();
+        CustomToast.showError(requireContext(), message);
     }
 }

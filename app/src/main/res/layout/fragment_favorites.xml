@@ -1,207 +1,360 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@color/pw_background"
     android:fillViewport="true"
     android:scrollbars="none">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="30dp">
+        android:paddingBottom="40dp">
 
-        <!-- Аватар -->
-        <FrameLayout
-            android:id="@+id/avatarContainer"
-            android:layout_width="104dp"
-            android:layout_height="104dp"
-            android:layout_marginStart="56dp"
-            android:layout_marginTop="83dp"
+        <!-- Фоновая арка шапки -->
+        <View
+            android:id="@+id/headerBackground"
+            android:layout_width="500dp"
+            android:layout_height="320dp"
+            android:translationY="-120dp"
+            android:background="@drawable/bg_header_arch"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivAvatar"
-                android:layout_width="104dp"
-                android:layout_height="104dp"
-                android:padding="2dp"
-                android:contentDescription="Изменить аватар"
-                android:scaleType="centerCrop"
-                android:src="@drawable/image_def"
-                android:clickable="true"
-                android:focusable="true"
-                app:shapeAppearanceOverlay="@style/CircleImage"
-                app:strokeColor="@color/pw_avatar"
-                app:strokeWidth="2dp" />
-
-            <!-- Кнопка изменения аватарки -->
-            <ImageView
-                android:id="@+id/ivEditAvatar"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="1dp"
-                android:padding="6dp"
-                android:background="@drawable/bg_edit_avatar"
-                android:src="@android:drawable/ic_menu_edit"
-                android:contentDescription="Изменить аватар"
-                android:clickable="true"
-                android:focusable="true" />
-
-        </FrameLayout>
-
-        <!-- Никнейм -->
+        <!-- Заголовок экрана -->
         <TextView
-            android:id="@+id/tvNickname"
+            android:id="@+id/tvScreenTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
-            android:text="НИКНЕЙМ"
+            android:layout_marginTop="28dp"
+            android:text="Профиль"
             android:textColor="@android:color/white"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="@id/avatarContainer"
-            app:layout_constraintStart_toEndOf="@id/avatarContainer"
-            app:layout_constraintTop_toTopOf="@id/avatarContainer" />
-
-        <!-- Фамилия -->
-        <TextView
-            android:id="@+id/tvSurname"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="38dp"
-            android:layout_marginTop="55dp"
-            android:text="Фамилия"
-            android:textColor="@color/pw_text_dark"
-            android:textSize="20sp"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/avatarContainer" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Имя -->
-        <TextView
-            android:id="@+id/tvName"
-            android:layout_width="wrap_content"
+        <!-- ЕДИНАЯ КАРТОЧКА ПРОФИЛЯ -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardProfile"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="38dp"
-            android:layout_marginTop="5dp"
-            android:text="Имя"
-            android:textColor="@color/pw_text_dark"
-            android:textSize="20sp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:strokeWidth="0dp"
+            app:layout_constraintTop_toBottomOf="@id/tvScreenTitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvSurname" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Почта -->
-        <TextView
-            android:id="@+id/tvEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="38dp"
-            android:layout_marginTop="5dp"
-            android:text="Почта"
-            android:textColor="@color/pw_text_dark"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvName" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <!-- Дата рождения -->
-        <TextView
-            android:id="@+id/tvBirthDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="38dp"
-            android:layout_marginTop="5dp"
-            android:text="Дата рождения"
-            android:textColor="@color/pw_text_dark"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvEmail" />
+                <!-- 1. Шапка: Аватар слева, Никнейм + Имя и Фамилия справа -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="16dp">
 
-        <!-- Страна -->
-        <TextView
-            android:id="@+id/tvCountry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="135dp"
-            android:layout_marginTop="55dp"
-            android:text="Страна,"
-            android:textColor="@color/pw_text_dark"
-            android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@id/tvEmail"
-            app:layout_constraintTop_toBottomOf="@id/avatarContainer" />
+                    <!-- Аватар пользователя (слева) -->
+                    <FrameLayout
+                        android:id="@+id/avatarContainer"
+                        android:layout_width="96dp"
+                        android:layout_height="96dp">
 
-        <!-- Город -->
-        <TextView
-            android:id="@+id/tvCity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="135dp"
-            android:layout_marginTop="2dp"
-            android:text="Город"
-            android:textColor="@color/pw_text_dark"
-            android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@id/tvEmail"
-            app:layout_constraintTop_toBottomOf="@id/tvCountry" />
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivAvatar"
+                            android:layout_width="96dp"
+                            android:layout_height="96dp"
+                            android:padding="2dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/image_def"
+                            android:contentDescription="Аватар пользователя"
+                            android:clickable="true"
+                            android:focusable="true"
+                            app:shapeAppearanceOverlay="@style/CircleImage"
+                            app:strokeColor="@color/pw_avatar"
+                            app:strokeWidth="3dp" />
 
-        <!-- Выход -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLogout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="38dp"
-            android:layout_marginTop="16dp"
-            android:text="Выйти"
-            android:textAllCaps="false"
-            android:textColor="@color/pw_text_on_tan"
-            app:backgroundTint="@color/pw_button_tan"
-            app:cornerRadius="12dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvBirthDate" />
+                        <ImageView
+                            android:id="@+id/ivEditAvatar"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="bottom|end"
+                            android:padding="6dp"
+                            android:background="@drawable/bg_edit_avatar"
+                            android:src="@drawable/ic_edit_pencil"
+                            android:contentDescription="Изменить аватар"
+                            android:clickable="true"
+                            android:focusable="true"
+                            app:tint="@color/pw_button_brown" />
+                    </FrameLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEditProfile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="16dp"
-            android:text="Изменить"
-            android:textAllCaps="false"
-            android:textColor="@color/pw_button_tan"
-            app:backgroundTint="@color/pw_button_brown"
-            app:cornerRadius="12dp"
-            app:layout_constraintStart_toEndOf="@id/btnLogout"
-            app:layout_constraintTop_toBottomOf="@id/tvBirthDate" />
+                    <!-- Текстовая информация (справа) -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="18dp"
+                        android:orientation="vertical">
 
-        <!-- Избранное -->
+                        <!-- Никнейм -->
+                        <TextView
+                            android:id="@+id/tvNickname"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="НИКНЕЙМ"
+                            android:textColor="@color/pw_text_dark"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+
+                        <!-- Имя и Фамилия рядом с аватаром -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Загрузка…"
+                                android:textColor="#8E7C6D"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvSurname"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text=""
+                                android:textColor="#8E7C6D"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="#F2E6D8" />
+
+                <!-- 2. Секция личных данных -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ЛИЧНЫЕ ДАННЫЕ"
+                    android:textColor="#8A5A2E"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.08" />
+
+                <!-- Электронная почта -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_input_field">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_email"
+                            app:tint="@color/pw_button_brown" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Email"
+                            android:textColor="#8E7C6D"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvEmail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Загрузка…"
+                            android:textColor="@color/pw_text_dark"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="#F2E6D8" />
+
+                <!-- Местоположение -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_input_field">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_location"
+                            app:tint="@color/pw_button_brown" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Местоположение"
+                            android:textColor="#8E7C6D"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvCountry"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Загрузка…"
+                                android:textColor="@color/pw_text_dark"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvCity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=""
+                                android:textColor="@color/pw_text_dark"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 3. Кнопки внутри карточки -->
+                <LinearLayout
+                    android:id="@+id/profileButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnEditProfile"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:text="Изменить"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        app:icon="@drawable/ic_edit_pencil"
+                        app:iconTint="@color/white"
+                        app:iconGravity="textStart"
+                        app:backgroundTint="@color/pw_button_brown"
+                        app:cornerRadius="12dp"
+                        app:elevation="0dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLogout"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:text="Выйти"
+                        android:textAllCaps="false"
+                        android:textColor="@color/pw_text_dark"
+                        android:textSize="14sp"
+                        app:backgroundTint="@color/pw_input_fill"
+                        app:cornerRadius="12dp"
+                        app:strokeColor="@color/pw_button_brown"
+                        app:strokeWidth="1dp"
+                        app:elevation="0dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Раздел Избранного -->
         <TextView
             android:id="@+id/tvFavoritesTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="38dp"
-            android:layout_marginTop="42dp"
-            android:text="▮ Избранное"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="28dp"
+            android:text="▮ Избранные питомцы"
             android:textColor="@color/pw_text_dark"
-            android:textSize="23sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvBirthDate" />
+            app:layout_constraintTop_toBottomOf="@id/cardProfile" />
 
-        <!-- Список избранных -->
+        <!-- Список избранных питомцев -->
         <LinearLayout
             android:id="@+id/favoritesList"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="38dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="12dp"
-            android:layout_marginEnd="38dp"
+            android:layout_marginEnd="20dp"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnLogout">
-
-        </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@id/tvFavoritesTitle" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
