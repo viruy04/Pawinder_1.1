@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -20,8 +22,10 @@ import androidx.fragment.app.Fragment;
 
 import com.example.pawinder_11.R;
 import com.example.pawinder_11.api.ApiClient;
+import com.bumptech.glide.Glide;
 import com.example.pawinder_11.model.City;
 import com.example.pawinder_11.model.Country;
+import com.example.pawinder_11.model.Pet;
 import com.example.pawinder_11.model.Profile;
 import com.example.pawinder_11.model.ProfileUpdateRequest;
 import com.example.pawinder_11.ui.auth.LoginActivity;
@@ -60,6 +64,8 @@ public class FavoritesFragment extends Fragment {
             R.drawable.image_9
     };
 
+    private LinearLayout favoritesList;
+
     public FavoritesFragment() {
         super(R.layout.fragment_favorites);
     }
@@ -80,6 +86,7 @@ public class FavoritesFragment extends Fragment {
         ImageView editAvatar = view.findViewById(R.id.ivEditAvatar);
         editAvatar.setOnClickListener(v -> showAvatarChooser());
 
+        favoritesList = view.findViewById(R.id.favoritesList);
         tvNickname = view.findViewById(R.id.tvNickname);
         tvSurname = view.findViewById(R.id.tvSurname);
         tvName = view.findViewById(R.id.tvName);
@@ -99,6 +106,94 @@ public class FavoritesFragment extends Fragment {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadFavorites();
+    }
+
+    // ---------- избранное ----------
+
+    private void loadFavorites() {
+        int userId = SessionManager.getUserId(requireContext());
+        if (userId == -1) return;
+
+        showFavoritesMessage("Загрузка…");
+        ApiClient.getApi().getFavorites(userId).enqueue(new Callback<List<Pet>>() {
+            @Override
+            public void onResponse(Call<List<Pet>> call, Response<List<Pet>> response) {
+                if (!isAdded()) return;
+                if (response.isSuccessful() && response.body() != null) {
+                    renderFavorites(response.body());
+                } else {
+                    showFavoritesMessage("Не удалось загрузить избранное: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Pet>> call, Throwable t) {
+                if (!isAdded()) return;
+                showFavoritesMessage("Нет связи с сервером");
+            }
+        });
+    }
+
+    private void renderFavorites(List<Pet> favorites) {
+        favoritesList.removeAllViews();
+        if (favorites.isEmpty()) {
+            showFavoritesMessage("Пока ничего нет. Свайпните вправо, чтобы добавить питомца.");
+            return;
+        }
+
+        for (Pet pet : favorites) {
+            View item = getLayoutInflater().inflate(R.layout.item_favorite_pet, favoritesList, false);
+            ((TextView) item.findViewById(R.id.tvFavName)).setText(pet.getName());
+            ((TextView) item.findViewById(R.id.tvFavDescription)).setText(pet.getDescription());
+
+            String url = pet.getPhotoUrl();
+            if (url != null && !url.trim().isEmpty()) {
+                if (url.startsWith("/")) {
+                    url = "https://pawinder-server.onrender.com" + url;
+                }
+                Glide.with(this).load(url).centerCrop()
+                        .into((ImageView) item.findViewById(R.id.ivFavPhoto));
+            }
+
+            item.findViewById(R.id.btnFavRemove).setOnClickListener(v -> removeFavorite(pet));
+            favoritesList.addView(item);
+        }
+    }
+
+    private void removeFavorite(Pet pet) {
+        int userId = SessionManager.getUserId(requireContext());
+        ApiClient.getApi().removeFavorite(userId, pet.getId()).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!isAdded()) return;
+                if (response.isSuccessful()) {
+                    loadFavorites();
+                } else {
+                    toast("Не удалось удалить: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                if (!isAdded()) return;
+                toast("Нет связи с сервером");
+            }
+        });
+    }
+
+    private void showFavoritesMessage(String text) {
+        favoritesList.removeAllViews();
+        TextView message = new TextView(requireContext());
+        message.setText(text);
+        message.setTextColor(0xFF555555);
+        message.setTextSize(16);
+        favoritesList.addView(message);
     }
 
     // ---------- профиль ----------

@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.pawinder_11.R;
+import com.example.pawinder_11.utils.SessionManager;
 import com.example.pawinder_11.utils.TranslationManager;
 import com.example.pawinder_11.api.ApiClient;
 import com.example.pawinder_11.model.Pet;
@@ -339,6 +340,13 @@ public class SwipeFragment extends Fragment {
     }
 
     private void swipeCard(boolean isRight) {
+        if (petList == null || petList.isEmpty() || currentIndex >= petList.size()) return;
+
+        // Свайп вправо / правая кнопка — добавляем текущего питомца в избранное
+        if (isRight) {
+            addCurrentPetToFavorites();
+        }
+
         float targetX = isRight ? 1200f : -1200f;
         petCardView.animate()
                 .translationX(targetX)
@@ -346,6 +354,38 @@ public class SwipeFragment extends Fragment {
                 .setDuration(250)
                 .withEndAction(this::showNextPet)
                 .start();
+    }
+
+    private void addCurrentPetToFavorites() {
+        if (getContext() == null) return;
+        Pet pet = petList.get(currentIndex);
+        int userId = SessionManager.getUserId(requireContext());
+        if (userId == -1) return;
+
+        ApiClient.getApi().addFavorite(userId, pet.getId()).enqueue(new Callback<Pet>() {
+            @Override
+            public void onResponse(Call<Pet> call, Response<Pet> response) {
+                if (!isAdded()) return;
+                if (response.code() == 201) {
+                    toast("Добавлено в избранное");
+                } else if (response.code() == 200) {
+                    toast("Уже в избранном");
+                } else {
+                    toast("Не удалось добавить в избранное: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Pet> call, Throwable t) {
+                if (!isAdded()) return;
+                Log.e("FAVORITES", "add failed", t);
+                toast("Нет связи с сервером, питомец не добавлен в избранное");
+            }
+        });
+    }
+
+    private void toast(String text) {
+        Toast.makeText(requireContext(), text, Toast.LENGTH_SHORT).show();
     }
 
     private void showNextPet() {

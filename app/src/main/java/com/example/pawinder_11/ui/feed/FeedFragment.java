@@ -62,10 +62,11 @@ public class FeedFragment extends Fragment {
     private void loadPets() {
         progressBarFeed.setVisibility(View.VISIBLE);
 
+        // 1. Проверка внедренных отказов (Fault Injection)
         int faultScenario = FeedFaultInjector.getScenario(requireActivity());
 
         if (faultScenario == FeedFaultInjector.HTTP_500) {
-            handleLoadError("Не удалось загрузить ленту");
+            handleLoadError("Не удалось загрузить ленту (HTTP 500)");
             return;
         }
 
@@ -74,6 +75,7 @@ public class FeedFragment extends Fragment {
             return;
         }
 
+        // 2. Реальный запрос к API
         ApiClient.getApi().getAllPets().enqueue(new Callback<List<Pet>>() {
             @Override
             public void onResponse(
@@ -84,11 +86,18 @@ public class FeedFragment extends Fragment {
 
                 progressBarFeed.setVisibility(View.GONE);
 
-                if (FeedLogicProvider.getInstance().isUsableResponse(
-                        response.isSuccessful(), response.body())) {
-                    if (FeedLogic.replaceItemsSafely(petList, response.body())) {
+                // 3. Использование единого безопасного метода обновления
+                // Мы НЕ делаем petList.clear() и petList.addAll() здесь вручную!
+                // Всё это делает replaceItemsSafely внутри FeedLogic
+
+                if (response.isSuccessful() && response.body() != null) {
+                    // Пытаемся безопасно обновить список
+                    boolean updated = FeedLogic.replaceItemsSafely(petList, response.body());
+
+                    if (updated) {
                         feedAdapter.notifyDataSetChanged();
                     } else {
+                        // Если логика вернула false (например, данные пустые или некорректные)
                         Toast.makeText(
                                 requireContext(),
                                 "Не удалось обработать данные ленты",
@@ -96,9 +105,10 @@ public class FeedFragment extends Fragment {
                         ).show();
                     }
                 } else {
+                    // Если сервер вернул ошибку (4xx, 5xx) или пустое тело
                     Toast.makeText(
-                            getContext(),
-                            "Не удалось загрузить ленту",
+                            requireContext(),
+                            "Ошибка сервера: " + response.code(),
                             Toast.LENGTH_SHORT
                     ).show();
                 }
@@ -111,10 +121,9 @@ public class FeedFragment extends Fragment {
             ) {
                 if (!isAdded()) return;
 
-                Log.e("FeedFragment", "Error loading feed", t);
-                handleLoadError(
-                        FeedLogicProvider.getInstance().networkErrorMessage(t)
-                );
+                Log.e("FeedFragment", "Network error", t);
+                // При сетевой ошибке мы НЕ трогаем petList, старые карточки остаются
+                handleLoadError("Ошибка сети: " + t.getMessage());
             }
         });
     }
